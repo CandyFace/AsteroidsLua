@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<entity version="2">
+    <settings>
+        <linkedResourcePools>
+            <resourcePool path="Sprites/PlayerSheet.sprites" />
+        </linkedResourcePools>
+        <layers>
+            <layer name="debugger" id="1" visible="true" />
+            <layer name="player" id="2" visible="false" />
+        </layers>
+    </settings>
+    <root polystring:id="" layerID="1" polystring:tags="" type="Entity" cR="1.000000" cG="1.000000" cB="1.000000" cA="1.000000" blendMode="0" sX="1.000000" sY="1.000000" sZ="1.000000" rX="0.000000" rY="0.000000" rZ="0.000000" rW="1.000000" pX="0.000000" pY="0.000000" pZ="0.000000" bbX="0.000000" bbY="0.000000" bbZ="0.001000">
+        <children>
+            <child id="player" layerID="0" polystring:tags="" type="SceneEntityInstance" cR="1.000000" cG="1.000000" cB="1.000000" cA="1.000000" blendMode="0" sX="1.985014" sY="1.985014" sZ="0.238575" rX="0.000000" rY="0.000000" rZ="0.000000" rW="1.000000" pX="0.000000" pY="0.000000" pZ="0.000000" bbX="0.000000" bbY="0.000000" bbZ="0.001000">
+                <SceneEntityInstance filePath="Entities/Player.entity" />
+            </child>
+        </children>
+    </root>
+</entity>
