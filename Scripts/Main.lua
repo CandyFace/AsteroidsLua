@@ -5,7 +5,6 @@ nor is there any explanation for those who should be lost or confused.
 An Asteroids clone made using PolyCode by CandyFace / Oliver Larsen - 2016 --]]
 
 require "Scripts/Player"
-require "Scripts/Miscfunctions"
 require "Scripts/UI"
 require "Scripts/Asteroid"
 require "Scripts/Ammo"
