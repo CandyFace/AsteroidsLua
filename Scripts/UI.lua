@@ -15,7 +15,7 @@ function UI:Update(dt)
 	-- 	velXLabel:setText("velX: " .. String.NumberToString(Player:getPlayerVelX(), 1 ))
 	-- 	velYLabel:setText("velY: " .. String.NumberToString(Player:getPlayerVelY(), 1 ))
 	else
-	scoreLabel:setText("" .. String.NumberToString(Player:getPlayerScore(), 0))
+	scoreLabel:setText("" .. String.NumberToString(player.score, 0))
 	
 	--display 0 until reaches x then remove 0
 	if player.survivalTimer < 9.5 then

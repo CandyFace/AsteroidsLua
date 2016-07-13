@@ -6,10 +6,8 @@
         <item type="file" path="Asteroid.sublime-project" />
         <item type="file" path="Asteroid.sublime-workspace" />
         <item type="folder" path="Entities" />
-        <item type="folder" path="Images" />
         <item type="folder" path="Scripts" />
         <item type="folder" path="Sfx" />
-        <item type="folder" path="Sprites" />
         <item type="folder" path="Typefaces" />
     </polyarray:packedItems>
 </PolycodeProject>

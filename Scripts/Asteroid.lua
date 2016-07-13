@@ -6,9 +6,6 @@ local shape = 1
 local asteroid
 local split = 0
 local size = 7
---local size = 7
--- math.randomseed(os.time())
--- rollValue = math.random(100.0)
 
 -- All values in the struct will be independent when used
 function Asteroid:Asteroid(scene) -- This works like constructor
@@ -119,7 +116,7 @@ function Asteroid:Split(object)
 	object.asteroid.explosion:Play()
 	object.asteroid.hit = true
 	object:setRandomPos(false)
-	player:setPlayerScore(player:getPlayerScore() + object.asteroid.point)
+	player.score = player.score + object.asteroid.point
 	newPos = Vector2(object.asteroid:getPosition().x, object.asteroid:getPosition().y)
 	object.asteroid:setPositionX(100000000)
 	if object.asteroid.size >= object.asteroid.mediumASize then

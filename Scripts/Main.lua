@@ -39,7 +39,6 @@ debriAngle = 0
 debriTimer = 0
 amountOfAsteroids = 4
 newGame = true
-gameOver = false
 
 --Tables
 debris = {}
@@ -79,9 +78,6 @@ function Update(dt)
 	if not newGame then
 		player:Update(dt)
 		ui:Update(dt)
-		player:shield(dt)
-		player:UpdatePlayerLife(player:getPlayerLife())
-		player:UpdateExplosion()
 	
 		if reloadAsteroids then
 			for i = 1, amountOfAsteroids do
@@ -93,14 +89,14 @@ function Update(dt)
 			reloadAsteroids = false
 		end
 	
-		if respawned then
-			respawnTimer = respawnTimer + 1*dt
+		if player.respawned then
+			player.respawnTimer = player.respawnTimer + 1*dt
 			player.hit = true
 			player:Respawn()
 		end
 	
 		--The score determines whether a wave has been completed
-		if player:getPlayerScore() == finishScore then
+		if player.score == finishScore then
 			waveTimer = waveTimer + 1*dt
 			if waveTimer >= 3 then
 				waveTimer = 0
@@ -137,7 +133,7 @@ function Update(dt)
 				if player.life > 0 then
 					stayWithinBoundary(object.asteroid)
 					if not player.shieldOn then
-						if circleIntersection(player:getPlayer():getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
+						if circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
 							player:Explode(dt)
 							player:takeDamage(dt)
 							totalDebris:Spread(object)
@@ -146,8 +142,10 @@ function Update(dt)
 					end
 		
 					for i = 1, count(debris) do
-						if circleIntersection(debris[i].debriMesh:getPosition2D(),player:getPlayer():getPosition2D(),20) then
-							player:Explode(dt)
+						if circleIntersection(debris[i].debriMesh:getPosition2D(),player.playerMain:getPosition2D(),20) then
+							if not player.shieldOn then
+								player:Explode(dt)
+							end
 							player:takeDamage()
 						end
 					end
@@ -199,41 +197,9 @@ function Update(dt)
 	end
 end
 
--- function Split(object)
--- 	object.asteroid.explosion:Play()
--- 	object.asteroid.hit = true
--- 	object:setRandomPos(false)
--- 	player:setPlayerScore(player:getPlayerScore() + object.asteroid.point)
--- 	newPos = Vector2(object.asteroid:getPosition().x, object.asteroid:getPosition().y)
--- 	object.asteroid:setPositionX(100000000)
--- 	if object.asteroid.size >= object.asteroid.mediumASize then
--- 		object:setAsteroidSize(object.asteroid.size - 2)
--- 	end
-	
--- 	if object.asteroid.size > object.asteroid.mediumASize then
--- 		object:setPositionXY(newPos.x, newPos.y)
--- 		object.astShape = random(1,4)
--- 		for i = 1, object.asteroid.canSplit do
--- 				table.insert(asteroids, Asteroid(scene))
--- 		end
--- 		object:setSplitSize(object.asteroid.split + 1)
--- 	end
--- end
-
--- function Debris(object, debriTarget)
--- 	for i = 1, count(debriTarget) do
--- 		debriTarget[i].position = Vector2(cos(degToRad(debriTarget[i].direction + debriAngle)) * 1.15, sin(degToRad(debriTarget[i].direction + debriAngle)) * 1.15)
--- 		debriTarget[i].velocity = Vector2(cos(degToRad(debriTarget[i].direction + debriAngle)) * debriTarget[i].debriSpeed, sin(degToRad(debriTarget[i].direction + debriAngle)) * debriTarget[i].debriSpeed)
--- 		debriAngle = debriAngle + 45
--- 		debriTarget[i].alive = true
--- 		debriTarget[i]:Fire(Vector2(debriTarget[i].position.x + object.asteroid:getPosition().x, debriTarget[i].position.y + object.asteroid:getPosition().y),
--- 		Vector2(debriTarget[i].velocity.x + 0, debriTarget[i].velocity.y + 0), 0)
--- 	end
--- end
-
 function onKeyDown(key)
 	if not newGame then
-		if player.life > 0 and respawned == false then
+		if player.life > 0 and player.respawned == false then
 			if key == KEY_x and isPressed then
 				isPressed = false
 				player.shotFired = true

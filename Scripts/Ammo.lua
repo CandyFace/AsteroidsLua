@@ -1,20 +1,17 @@
 class "Ammo"
 
-local size = 5
-
-
 function Ammo:Ammo(scene)
-	shot = SceneMesh.SceneMeshWithType(Mesh.LINE_MESH)
-	self.shot = shot
+	self.shot = SceneMesh.SceneMeshWithType(Mesh.LINE_MESH)
 	self.scene = scene
 	self.alive = false
 	self.timer = 3
 	self.direction = 0
+	self.size = 5
 	self.canShoot = true
 	self.vel = Vector2(0.0,0.0)
 	self.pos = Vector2(0.0,0.0)
 	self.nVel = Vector2(0,0)
-	self.shot:getMesh():createVPlane ( size,  size,  0)
+	self.shot:getMesh():createVPlane ( self.size,  self.size,  0)
 	self.colBody = scene:addCollisionChild(self.shot,  PhysicsScene2DEntity.ENTITY_RECT)
 	self.shot:setPositionX(1000)
 	scene:addChild(self.shot)
@@ -34,7 +31,6 @@ function Ammo:Fire(pos,vel, time)
 	self.time = timer
 	self.shot:setPosition(self.pos.x,self.pos.y,0)
 	player.shootSound:Play()
-
 end
 
 function Ammo:getTimer()
