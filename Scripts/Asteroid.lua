@@ -3,7 +3,6 @@ class "Asteroid"
 local position = Vector2(0.0,0.0)
 local randomPos = true
 local shape = 1
-local asteroid
 local split = 0
 local size = 7
 
@@ -21,7 +20,6 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 	end
 	asteroid.shape = Asteroid:Shapes()
 	--asteroid:getMesh():setMeshType(Mesh.LINE_LOOP_MESH)
-	asteroid.physicsBody = scene:addCollisionChild(asteroid, PhysicsScene2DEntity.ENTITY_CIRCLE, false)
 	asteroid.hit = false
 	self.shape = shape
 	asteroid.split = split
@@ -129,7 +127,7 @@ function Asteroid:Split(object)
 		for i = 1, object.asteroid.canSplit do
 				table.insert(asteroids, Asteroid(scene))
 		end
-		object:setSplitSize(object.asteroid.split + 1)
+		object.asteroid.split = object.asteroid.split + 1
 	end
 end
 

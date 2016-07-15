@@ -32,13 +32,28 @@ function UI:Update(dt)
 	end
 
 	if gameOverTimer > 3 then
-		-- newGame = true
+		for i = 1, table.getn(asteroids) do
+			scene:removeEntity(asteroids[i].asteroid)
+			asteroids[i]:setRandomPos(true)
+			asteroids[i]:setAsteroidSize(7)
+			asteroids[i].asteroid.hit = true -- make sure every asteroid has been hit
+		end
 		-- gameOver = false
-		-- gameOverLabel.visible = false
-		-- gameOverTimer = 0
-		-- gameLabel.visible = true
-		-- descLabel.visible = true
-		Services.Core:Shutdown()
+		scene:removeEntity(player.playerMain)
+		scene:removeEntity(player.thrustMesh)
+
+		for i = 1, 4 do
+			scene:removeEntity(player.playerExplosionMesh[i])
+		end
+
+		collectgarbage()
+		newGame = true
+		gameOverLabel.visible = false
+		gameLabel.visible = true
+		descLabel.visible = true
+		scoreLabel.visible = false
+		timerLabel.visible = false
+		--Services.Core:Shutdown()
 	end
 
 	-- -- Disable debug labels

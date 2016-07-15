@@ -12,7 +12,6 @@ function Ammo:Ammo(scene)
 	self.pos = Vector2(0.0,0.0)
 	self.nVel = Vector2(0,0)
 	self.shot:getMesh():createVPlane ( self.size,  self.size,  0)
-	self.colBody = scene:addCollisionChild(self.shot,  PhysicsScene2DEntity.ENTITY_RECT)
 	self.shot:setPositionX(1000)
 	scene:addChild(self.shot)
 end

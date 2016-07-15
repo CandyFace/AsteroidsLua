@@ -11,8 +11,7 @@ require "Scripts/Ammo"
 require "Scripts/Debris"
 
 -- worldScale, posIterations
-scene = PhysicsScene2D(1.0, 60)
-scene:setGravity(Vector2(0.0, 0.0))
+scene = Scene(Scene.SCENE_2D)
 
 -- sets the orthographic camera resolution
 -- this is not the actual window resolution
@@ -23,6 +22,14 @@ resY = Services.Core:getScreenHeight()
 Services.FontManager:registerFont("Walkway", "Typefaces/Walkway_SemiBold.ttf")
 								--			 640|		              480|
 Services.Core:setVideoMode(Services.Core:getXRes(), Services.Core:getYRes(), false, true, 0, 0, false)
+-- Services.ResourceManager:addArchive("default.pak")
+-- Services.ResourceManager:addDirResource("default", true)
+-- Services.ResourceManager:addArchive("hdr.pak")
+-- Services.ResourceManager:addDirResource("hdr", true)
+-- scene:getDefaultCamera():setPostFilterByName("HDRProcessBloom");
+-- print(scene:getDefaultCamera():getNumLocalShaderOptions())
+-- print(scene:getDefaultCamera():hasFilterShader())
+
 scene:getDefaultCamera():setOrthoSize(resX, resY)
 level = SceneEntityInstance(scene, "Entities/level.entity")
 
@@ -65,9 +72,10 @@ function Init()
 		asteroids[i] = Asteroid(scene)
 		totalAsteroids = asteroids[i]
 	end
-
 	gameLabel.visible = false
 	descLabel.visible = false
+	scoreLabel.visible = true
+	timerLabel.visible = true
 	newGame = false
 	gameOverTimer = 0
 	finishScore = 3680
@@ -75,6 +83,7 @@ function Init()
 end
 
 function Update(dt)
+
 	if not newGame then
 		player:Update(dt)
 		ui:Update(dt)
@@ -82,7 +91,7 @@ function Update(dt)
 		if reloadAsteroids then
 			for i = 1, amountOfAsteroids do
 				asteroids[i]:setAsteroidSize(7)
-				asteroids[i]:setRandomPos(true)
+				--asteroids[i]:setRandomPos(true)
 				asteroids[i].asteroid.hit = false
 				asteroids[i].asteroid:setPosition(random(Services.Core:getXRes()),random(Services.Core:getYRes()),0)
 			end
@@ -290,6 +299,8 @@ timerLabel:setPositionY(Services.Core:getYRes() - 100)
 function degToRad(degrees)
 	return degrees * math.pi/180
 end
+
+
 
 --TODO: Make line intersection algorithm
 function circleIntersection(target, shooter, targetRadius)

@@ -12,7 +12,6 @@ function Player:Player(scene)
 	self.friction = 0.0010
 	self.invisTimer = 3
 	self.scene = scene
-	self.collisionBody = scene:addCollisionChild(self.playerMain, PhysicsScene2DEntity.ENTITY_RECT)
 	self.initRotation = self.playerMain:Roll(135) -- sets the rotation to 90, based on its origin value
 	self.playerMain:getMesh():addVertex(-7.5, 7.5, 0.0)
 	self.playerMain:getMesh():addVertex(-25, 0, 0.0)
@@ -20,6 +19,7 @@ function Player:Player(scene)
 	self.playerMain:getMesh():addVertex(0, 25, 0.0)
 	self.shotfired = false
 	self.scene:addChild(self.playerMain)
+	self.playerMain:setBlendingMode(4)
 	self.shootSound =  Sound("Sfx/pew.wav")
 	self.thrustSound = Sound("Sfx/thrust2.wav")
 	self.explosionSound = Sound("Sfx/PlayerExplosion.wav")

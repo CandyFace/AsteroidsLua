@@ -1,9 +1,7 @@
 <?xml version="1.0" ?>
 <entity version="2">
     <settings>
-        <linkedResourcePools>
-            <resourcePool path="Sprites/PlayerSheet.sprites" />
-        </linkedResourcePools>
+        <linkedResourcePools />
         <layers>
             <layer name="debugger" id="1" visible="true" />
             <layer name="player" id="2" visible="false" />
