@@ -5,7 +5,7 @@ local counter = 1
 
 function Player:Player(scene)
 	self.playerMain = SceneMesh.SceneMeshWithType(Mesh.LINE_LOOP_MESH)
-	self.playerMain.backfaceCulled = false
+	self.playerMain.lineSmooth = true
 	self.turnSpeed = 4
 	self.movementSpeed = 5
 	self.bulletSpeed = 150
@@ -13,13 +13,14 @@ function Player:Player(scene)
 	self.invisTimer = 3
 	self.scene = scene
 	self.initRotation = self.playerMain:Roll(135) -- sets the rotation to 90, based on its origin value
+	self.playerMain:setColorInt(152,181,193,255)
 	self.playerMain:getMesh():addVertex(-7.5, 7.5, 0.0)
 	self.playerMain:getMesh():addVertex(-25, 0, 0.0)
 	self.playerMain:getMesh():addVertex(15, -15, 0.0)
 	self.playerMain:getMesh():addVertex(0, 25, 0.0)
 	self.shotfired = false
 	self.scene:addChild(self.playerMain)
-	self.playerMain:setBlendingMode(4)
+	self.playerMain:setBlendingMode(2)
 	self.shootSound =  Sound("Sfx/pew.wav")
 	self.thrustSound = Sound("Sfx/thrust2.wav")
 	self.explosionSound = Sound("Sfx/PlayerExplosion.wav")
@@ -49,6 +50,9 @@ function Player:Player(scene)
 		self.thrustMesh:getMesh():addVertex(-4.7, 13.8, 0.0)
 		self.thrustMesh:getMesh():addVertex(-15, 15, 0.0)
 		self.thrustMesh:getMesh():addVertex(-13.2, 5, 0.0)
+		self.thrustMesh:setColorInt(152,181,193,255)
+		self.thrustMesh:setBlendingMode(1)
+		self.thrustMesh.lineSmooth = true
 		scene:addChild (self.thrustMesh)
 		self.thrustMeshCon[i] = self.thrustMesh
 	end
@@ -64,6 +68,9 @@ function Player:Player(scene)
 		self.playerLifeMesh:getMesh():addVertex(15, -15, 0.0)
 		self.playerLifeMesh:getMesh():addVertex(0, 25, 0.0)
 		self.playerLifeMesh:Roll(135)
+		self.playerLifeMesh:setColorInt(152,181,193,255)
+		self.playerLifeMesh:setBlendingMode(2)
+		self.playerLifeMesh.lineSmooth = true
 	
 		self.playerLifeMesh:setPosition(-Services.Core:getXRes() + 100 + self.space, Services.Core:getYRes() - 180,  0)
 		self.space = self.space + 50
@@ -73,6 +80,8 @@ function Player:Player(scene)
 
 	for i = 1, 4 do 
 		self.playerExplosionMesh[i] = SceneMesh.SceneMeshWithType(Mesh.LINE_MESH)
+		self.playerExplosionMesh[i]:setBlendingMode(4)
+		self.playerExplosionMesh[i]:setColorInt(152,181,193,255)
 	end
 	self.playerExplosionMesh[1]:getMesh():addVertex(-7.5, 7.5, 0.0)
 	self.playerExplosionMesh[1]:getMesh():addVertex(-25, 0, 0.0)
@@ -88,6 +97,7 @@ function Player:Player(scene)
 	self.alive = false
 	
 	for i = 1, 4 do
+		self.playerExplosionMesh[i].lineSmooth = true
 		scene:addChild(self.playerExplosionMesh[i])
 		self.playerExplosionMesh[i]:setPositionX(10000000)
 	end

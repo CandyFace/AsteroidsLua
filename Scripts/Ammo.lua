@@ -1,17 +1,19 @@
 class "Ammo"
 
 function Ammo:Ammo(scene)
-	self.shot = SceneMesh.SceneMeshWithType(Mesh.LINE_MESH)
+	self.shot = SceneMesh.SceneMeshWithType(Mesh.POINT_MESH)
 	self.scene = scene
 	self.alive = false
 	self.timer = 3
 	self.direction = 0
-	self.size = 5
+	self.size = 10
 	self.canShoot = true
 	self.vel = Vector2(0.0,0.0)
 	self.pos = Vector2(0.0,0.0)
 	self.nVel = Vector2(0,0)
 	self.shot:getMesh():createVPlane ( self.size,  self.size,  0)
+	self.shot:setColorInt(152,181,193,255)
+	self.shot:setBlendingMode(2)
 	self.shot:setPositionX(1000)
 	scene:addChild(self.shot)
 end

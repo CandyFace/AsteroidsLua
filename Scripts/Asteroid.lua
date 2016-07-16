@@ -26,6 +26,9 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 	asteroid.size = size
 	asteroid.canSplit = 2
 	asteroid.mediumASize = 3
+	asteroid.lineSmooth = true
+	asteroid:setColorInt(152,181,193,255)
+	asteroid:setBlendingMode(2)
 	if asteroid.size == 7 then
 		asteroid.speed = 2
 		asteroid.rotVal = 30

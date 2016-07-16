@@ -9,7 +9,9 @@ function Debris:Debris()
 	self.velocity = Vector2(0,0)
 	self.direction = 0
 	self.alive = false
+	self.debriMesh:setColorInt(152,181,193,255)
 	self.debriMesh:setPosition(10000,10000,0)
+	self.debriMesh:setBlendingMode(2)
 	scene:addChild(self.debriMesh)
 end
 

@@ -22,13 +22,17 @@ resY = Services.Core:getScreenHeight()
 Services.FontManager:registerFont("Walkway", "Typefaces/Walkway_SemiBold.ttf")
 								--			 640|		              480|
 Services.Core:setVideoMode(Services.Core:getXRes(), Services.Core:getYRes(), false, true, 0, 0, false)
--- Services.ResourceManager:addArchive("default.pak")
--- Services.ResourceManager:addDirResource("default", true)
--- Services.ResourceManager:addArchive("hdr.pak")
--- Services.ResourceManager:addDirResource("hdr", true)
--- scene:getDefaultCamera():setPostFilterByName("HDRProcessBloom");
--- print(scene:getDefaultCamera():getNumLocalShaderOptions())
--- print(scene:getDefaultCamera():hasFilterShader())
+Services.ResourceManager:addArchive("hdr.pak")
+Services.ResourceManager:addDirResource("hdr", true)
+scene:getDefaultCamera():setPostFilterByName("HDRProcessBloom")
+
+scene:getDefaultCamera():getLocalShaderOptions()[1]:addParam(ProgramParam.PARAM_NUMBER, "brightThreshold"):setNumber(0.40)
+scene:getDefaultCamera():getLocalShaderOptions()[2]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.004)
+scene:getDefaultCamera():getLocalShaderOptions()[3]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.004)
+scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "bloomFactor"):setNumber(3)
+scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "exposure"):setNumber(0)
+--print(scene:getDefaultCamera():getLocalShaderOptions()[1])	
+--print(scene:getDefaultCamera():hasFilterShader())
 
 scene:getDefaultCamera():setOrthoSize(resX, resY)
 level = SceneEntityInstance(scene, "Entities/level.entity")
@@ -256,18 +260,23 @@ function stayWithinBoundary(object)
 end
 
 -- UI Setup --
-scoreLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_STRONG, 0)
+scoreLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_NONE, 0)
 scene:addChild(scoreLabel)
 
-timerLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_STRONG, 0)
+timerLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_NONE, 0)
 scene:addChild(timerLabel)
 
-gameOverLabel = SceneLabel("GAME OVER!", 80, "Walkway", Label.ANTIALIAS_STRONG,0)
-gameLabel = SceneLabel("ASTEROIDS!", 160, "Walkway", Label.ANTIALIAS_STRONG,0)
-descLabel = SceneLabel("Press SPACE to start!", 40, "Walkway", Label.ANTIALIAS_STRONG,0)
+gameOverLabel = SceneLabel("GAME OVER!", 80, "Walkway", Label.ANTIALIAS_NONE,0)
+gameLabel = SceneLabel("ASTEROIDS!", 160, "Walkway", Label.ANTIALIAS_NONE,0)
+descLabel = SceneLabel("Press SPACE to start!", 40, "Walkway", Label.ANTIALIAS_NONE,0)
 gameOverLabel.visible = false
 gameLabel.visible = true
 descLabel.visible = true
+gameLabel:setColorInt(152,181,193,255)
+gameOverLabel:setColorInt(152,181,193,255)
+descLabel:setColorInt(152,181,193,255)
+scoreLabel:setColorInt(152,181,193,255)
+timerLabel:setColorInt(152,181,193,255)
 scene:addChild(gameOverLabel)
 scene:addChild(gameLabel)
 scene:addChild(descLabel)

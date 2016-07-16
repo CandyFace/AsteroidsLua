@@ -1,13 +1,11 @@
 <?xml version="1.0" ?>
-<PolycodeProject defaultWidth="640" defaultHeight="480" antiAliasingLevel="0" entryPoint="Scripts/Main.lua" textureFiltering="nearest" vSync="false" anisotropyLevel="0" frameRate="60">
-    <backgroundColor red="0.250000" green="0.250000" blue="0.250000" />
+<PolycodeProject defaultWidth="640" defaultHeight="480" antiAliasingLevel="0" entryPoint="Scripts/Main.lua" textureFiltering="linear" vSync="false" anisotropyLevel="0" frameRate="60">
+    <backgroundColor red="0.000000" green="0.000000" blue="0.000000" />
     <polyarray:packedItems>
-        <item type="file" path="Asteroid.polyapp" />
         <item type="file" path="Asteroid.sublime-project" />
         <item type="file" path="Asteroid.sublime-workspace" />
         <item type="file" path="default.pak" />
         <item type="folder" path="Entities" />
-        <item type="file" path="hdr.mat" />
         <item type="file" path="hdr.pak" />
         <item type="file" path="README.md" />
         <item type="folder" path="Scripts" />
