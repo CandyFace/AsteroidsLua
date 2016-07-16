@@ -1,7 +1,7 @@
 # AsteroidsLua
 An Asteroids clone made in lua using [Polycode](http://www.polycode.org) 
 
-![game](https://thumbs.gfycat.com/FirsthandFrequentAtlasmoth-size_restricted.gif)
+![game](https://thumbs.gfycat.com/RecklessAgonizingBlackcrappie-size_restricted.gif)
 
 ### Features
 * 4 Shots 
@@ -12,7 +12,6 @@ An Asteroids clone made in lua using [Polycode](http://www.polycode.org)
 ### What's missing
 * UFO
 * Highscore
-* Restart
 
 ### How to play
 Use Arrow keys to stear,
