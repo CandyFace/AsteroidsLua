@@ -27,9 +27,9 @@ Services.ResourceManager:addDirResource("hdr", true)
 scene:getDefaultCamera():setPostFilterByName("HDRProcessBloom")
 
 scene:getDefaultCamera():getLocalShaderOptions()[1]:addParam(ProgramParam.PARAM_NUMBER, "brightThreshold"):setNumber(0.40)
-scene:getDefaultCamera():getLocalShaderOptions()[2]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.004)
-scene:getDefaultCamera():getLocalShaderOptions()[3]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.004)
-scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "bloomFactor"):setNumber(3)
+scene:getDefaultCamera():getLocalShaderOptions()[2]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.002)
+scene:getDefaultCamera():getLocalShaderOptions()[3]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.002)
+scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "bloomFactor"):setNumber(1.5)
 scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "exposure"):setNumber(0)
 --print(scene:getDefaultCamera():getLocalShaderOptions()[1])	
 --print(scene:getDefaultCamera():hasFilterShader())
@@ -50,6 +50,8 @@ debriAngle = 0
 debriTimer = 0
 amountOfAsteroids = 4
 newGame = true
+coinTimer = 0
+totalCoins = 0
 
 --Tables
 debris = {}
@@ -80,13 +82,25 @@ function Init()
 	descLabel.visible = false
 	scoreLabel.visible = true
 	timerLabel.visible = true
+	coinLabel.visible = false
+	creditLabel.visible = false
 	newGame = false
 	gameOverTimer = 0
 	finishScore = 3680
 	waveTimer = 0
+	totalCoins = totalCoins - 1
 end
 
 function Update(dt)
+
+	if totalCoins < 1 and newGame then
+		coinTimer = coinTimer + 1 *dt
+		if round(coinTimer,0) % 2 == 0 then
+			coinLabel.visible = true
+		else
+			coinLabel.visible = false
+		end
+	end
 
 	if not newGame then
 		player:Update(dt)
@@ -123,12 +137,12 @@ function Update(dt)
 			debris[i]:UpdateDebris()
 			debriTimer = debriTimer + 1 *dt
 			if debris[i].alive then
-				if debriTimer > 1 then
+				if debriTimer > 0.5 then
 					--debris[i].debriMesh.enabled = false
 					debris[i].alive = false
 					debriTimer = 0
 				end
-			elseif  debriTimer > 3 then
+			elseif  debriTimer > 0.5 then
 				debris[i].debriMesh:setPositionX(10000)
 			end
 		end
@@ -225,12 +239,20 @@ function onKeyDown(key)
 
 	end
 
+	if key == KEY_F1 then
+		totalCoins = totalCoins + 1
+	end
+
 	if key == KEY_ESCAPE then
 		Services.Core:Shutdown()
 	end
 
-	if key == KEY_SPACE and newGame then
+	if key == KEY_SPACE and newGame and totalCoins > 0 then
 		Init()
+	end
+
+	if key == KEY_s and not newGame and player.respawned == false then
+		player:HyperSpace()
 	end
 end
 
@@ -260,27 +282,35 @@ function stayWithinBoundary(object)
 end
 
 -- UI Setup --
-scoreLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_NONE, 0)
+scoreLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_FULL, 0)
 scene:addChild(scoreLabel)
 
-timerLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_NONE, 0)
+timerLabel = SceneLabel("", 50, "Walkway", Label.ANTIALIAS_FULL, 0)
 scene:addChild(timerLabel)
 
-gameOverLabel = SceneLabel("GAME OVER!", 80, "Walkway", Label.ANTIALIAS_NONE,0)
-gameLabel = SceneLabel("ASTEROIDS!", 160, "Walkway", Label.ANTIALIAS_NONE,0)
-descLabel = SceneLabel("Press SPACE to start!", 40, "Walkway", Label.ANTIALIAS_NONE,0)
+gameOverLabel = SceneLabel("GAME OVER!", 80, "Walkway", Label.ANTIALIAS_FULL,0)
+gameLabel = SceneLabel("ASTEROIDS!", 160, "Walkway", Label.ANTIALIAS_FULL,0)
+coinLabel = SceneLabel("Insert coin", 40, "Walkway", Label.ANTIALIAS_FULL,0)
+descLabel = SceneLabel("Press SPACE to start!", 40, "Walkway", Label.ANTIALIAS_FULL,0)
+creditLabel = SceneLabel("©1979 ATARI INC", 40, "Walkway", Label.ANTIALIAS_FULL,0)
 gameOverLabel.visible = false
 gameLabel.visible = true
 descLabel.visible = true
 gameLabel:setColorInt(152,181,193,255)
 gameOverLabel:setColorInt(152,181,193,255)
 descLabel:setColorInt(152,181,193,255)
+coinLabel:setColorInt(152,181,193,255)
+creditLabel:setColorInt(152,181,193,255)
 scoreLabel:setColorInt(152,181,193,255)
 timerLabel:setColorInt(152,181,193,255)
 scene:addChild(gameOverLabel)
 scene:addChild(gameLabel)
 scene:addChild(descLabel)
+scene:addChild(coinLabel)
+scene:addChild(creditLabel)
 
+creditLabel:setPositionY(-Services.Core:getYRes() + 50)
+coinLabel:setPositionY(-Services.Core:getYRes() + 150)
 descLabel:setPositionY(-Services.Core:getYRes() + 200)
 scoreLabel:setPositionX(-Services.Core:getXRes() + 200)
 scoreLabel:setPositionY(Services.Core:getYRes() - 100)

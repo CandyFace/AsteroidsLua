@@ -53,6 +53,8 @@ function UI:Update(dt)
 		descLabel.visible = true
 		scoreLabel.visible = false
 		timerLabel.visible = false
+		coinLabel.visible = true
+		creditLabel.visible = true
 		--Services.Core:Shutdown()
 	end
 

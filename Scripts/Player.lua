@@ -2,6 +2,8 @@ class "Player"
 
 local keyInput = Services.Input -- shortening the call..
 local counter = 1
+local hyperSpaceActive = false
+local hyperSpaceTime = 0
 
 function Player:Player(scene)
 	self.playerMain = SceneMesh.SceneMeshWithType(Mesh.LINE_LOOP_MESH)
@@ -24,6 +26,8 @@ function Player:Player(scene)
 	self.shootSound =  Sound("Sfx/pew.wav")
 	self.thrustSound = Sound("Sfx/thrust2.wav")
 	self.explosionSound = Sound("Sfx/PlayerExplosion.wav")
+	self.hyperSpaceSound = Sound("Sfx/Hyperspace.wav")
+	self.hyperSpaceLandSound = Sound("Sfx/HyperspaceLand.wav")
 	self.hit = false
 	self.score = 0
 	self.life = 3
@@ -82,6 +86,7 @@ function Player:Player(scene)
 		self.playerExplosionMesh[i] = SceneMesh.SceneMeshWithType(Mesh.LINE_MESH)
 		self.playerExplosionMesh[i]:setBlendingMode(4)
 		self.playerExplosionMesh[i]:setColorInt(152,181,193,255)
+		self.playerExplosionMesh[i].lineSmooth = true
 	end
 	self.playerExplosionMesh[1]:getMesh():addVertex(-7.5, 7.5, 0.0)
 	self.playerExplosionMesh[1]:getMesh():addVertex(-25, 0, 0.0)
@@ -97,7 +102,6 @@ function Player:Player(scene)
 	self.alive = false
 	
 	for i = 1, 4 do
-		self.playerExplosionMesh[i].lineSmooth = true
 		scene:addChild(self.playerExplosionMesh[i])
 		self.playerExplosionMesh[i]:setPositionX(10000000)
 	end
@@ -108,6 +112,14 @@ function Player:Update(dt)
 	player:UpdatePlayerLife()
 	player:shield(dt)
 	player:UpdateExplosion()
+
+	if hyperSpaceActive and self.respawned == false then
+		player:UpdateHyperSpace(dt)
+	elseif hyperSpaceActive and self.respawned then
+		hyperSpaceTime = 0
+		hyperSpaceActive = false
+	end
+
 	self.angle = self.playerMain:getRoll() - 45 
 	self.thrustTimer = self.thrustTimer + 0.5
 	--print(velocity.x .. " " .. velocity.y)
@@ -118,7 +130,7 @@ function Player:Update(dt)
 		self.thrustSound:Stop()
 	end
 
-	if player.life > 0 and self.respawned == false then
+	if player.life > 0 and self.respawned == false and not hyperSpaceActive then
 		stayWithinBoundary(self.playerMain)
 		stayWithinBoundary(self.thrustMesh)
 
@@ -176,6 +188,19 @@ function Player:UpdateExplosion()
 	end
 end
 
+function Player:UpdateHyperSpace(dt)
+	hyperSpaceTime = hyperSpaceTime + 1 *dt
+	if hyperSpaceTime > 1 then 
+		self.playerMain:setPosition(random(Services.Core:getXRes() - 50),random(Services.Core:getYRes() - 50),0)
+		self.velocity.x = 0
+		self.velocity.y = 0
+		self.thrustMesh:setPosition(self.playerMain:getPosition().x, self.playerMain:getPosition().y,0)
+		self.hyperSpaceLandSound:Play()
+		hyperSpaceActive = false
+		hyperSpaceTime = 0
+	end
+end
+
 function Player:FireBullet(dt, object)
 	if not object.alive then
 		object.pos = Vector2(cos(degToRad(object.direction + self.angle)) * 1.15, sin(degToRad(object.direction + self.angle)) * 1.15)
@@ -183,6 +208,15 @@ function Player:FireBullet(dt, object)
 
 		object:Fire(Vector2(object.pos.x + self.playerMain:getPosition().x, object.pos.y + self.playerMain:getPosition().y),
 			Vector2(object.vel.x + self.velocity.x, object.vel.y + self.velocity.y), object.timer)
+	end
+end
+
+function Player:HyperSpace(dt)
+	if not hyperSpaceActive then
+		self.playerMain:setPosition(10000000,10000000,1000000)
+		self.thrustMesh:setPosition(self.playerMain:getPosition().x, self.playerMain:getPosition().y,0)
+		self.hyperSpaceSound:Play()
+		hyperSpaceActive = true
 	end
 end
 
