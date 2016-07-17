@@ -198,7 +198,14 @@ function Player:UpdateHyperSpace(dt)
 		self.hyperSpaceLandSound:Play()
 		hyperSpaceActive = false
 		hyperSpaceTime = 0
+		print(randomDeath)
+		if randomDeath == 1 then
+			player:Explode(dt)
+			player:takeDamage(dt)
+			randomDeath = 0
+		end
 	end
+
 end
 
 function Player:FireBullet(dt, object)
@@ -217,6 +224,7 @@ function Player:HyperSpace(dt)
 		self.thrustMesh:setPosition(self.playerMain:getPosition().x, self.playerMain:getPosition().y,0)
 		self.hyperSpaceSound:Play()
 		hyperSpaceActive = true
+		randomDeath = random(1,10)
 	end
 end
 
