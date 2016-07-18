@@ -52,6 +52,8 @@ amountOfAsteroids = 4
 newGame = true
 coinTimer = 0
 totalCoins = 0
+minExtra = 10000
+maxExtra = 15000
 
 --Tables
 debris = {}
@@ -105,6 +107,14 @@ function Update(dt)
 	if not newGame then
 		player:Update(dt)
 		ui:Update(dt)
+		print(minExtra)
+		
+		--Give player an extra life for getting x point.
+		if player.score > minExtra and player.score < maxExtra then
+			player:GainExtraLife()
+			minExtra = minExtra + 10000
+			maxExtra = maxExtra + 15000
+		end
 	
 		if reloadAsteroids then
 			for i = 1, amountOfAsteroids do

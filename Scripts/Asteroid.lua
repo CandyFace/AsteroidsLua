@@ -13,8 +13,8 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 	self.randomPos = randomPos
 	self.position = position
 	if self.randomPos then
-		asteroid:setPositionX(random(Services.Core:getXRes()))
-		asteroid:setPositionY(random(Services.Core:getYRes()))
+		asteroid:setPositionX(random(Services.Core:getXRes() - 50))
+		asteroid:setPositionY(random(Services.Core:getYRes() - 50))
 	else
 		asteroid:setPosition(self.position.x, self.position.y, 0)
 	end

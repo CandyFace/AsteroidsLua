@@ -28,6 +28,7 @@ function Player:Player(scene)
 	self.explosionSound = Sound("Sfx/PlayerExplosion.wav")
 	self.hyperSpaceSound = Sound("Sfx/Hyperspace.wav")
 	self.hyperSpaceLandSound = Sound("Sfx/HyperspaceLand.wav")
+	self.gainExtraLifeSound = Sound("Sfx/GainExtraLife.wav")
 	self.hit = false
 	self.score = 0
 	self.life = 3
@@ -205,7 +206,11 @@ function Player:UpdateHyperSpace(dt)
 			randomDeath = 0
 		end
 	end
+end
 
+function Player:GainExtraLife()
+	self.life = self.life + 1
+	self.gainExtraLifeSound:Play()
 end
 
 function Player:FireBullet(dt, object)

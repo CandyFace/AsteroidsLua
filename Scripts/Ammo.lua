@@ -36,7 +36,7 @@ function Ammo:UpdateBullet(dt)
 		self.shot:setPosition(self.shot:getPosition().x + self.nVel.x * 0.1, self.shot:getPosition().y + self.nVel.y * 0.1, 0)
 		
 		--places a particle shot behind the actual bullet, simulating the vector lighting from the arcade monitor
-		self.pShot:setPosition(self.pShot:getPosition().x *0.45 - self.pNVel.x * 0.1, self.pShot:getPosition().y *0.45 - self.pNVel.y * 0.1, 0)
+		self.pShot:setPosition(self.pShot:getPosition().x *0.42 - self.pNVel.x * 0.1, self.pShot:getPosition().y *0.42 - self.pNVel.y * 0.1, 0)
 		stayWithinBoundary(self.shot)
 	end
 end
