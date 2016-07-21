@@ -15,7 +15,7 @@ function UI:Update(dt)
 	-- 	velXLabel:setText("velX: " .. String.NumberToString(Player:getPlayerVelX(), 1 ))
 	-- 	velYLabel:setText("velY: " .. String.NumberToString(Player:getPlayerVelY(), 1 ))
 	else
-	scoreLabel:setText("" .. String.NumberToString(player.score, 0))
+	scoreLabel:setText("" .. String.NumberToString(player.visualScore, 0))
 	
 	--display 0 until reaches x then remove 0
 	if player.survivalTimer < 9.5 then
@@ -45,6 +45,15 @@ function UI:Update(dt)
 		for i = 1, 4 do
 			scene:removeEntity(player.playerExplosionMesh[i])
 		end
+
+		for i = 1, 10 do
+			scene:removeEntity(saucerBullet[i].shot)
+			scene:removeEntity(saucerBullet[i].pShot)
+		end
+		saucer.saucerSound:Stop()
+		scene:removeEntity(saucer.flyingSaucer)
+
+
 
 		collectgarbage()
 		newGame = true

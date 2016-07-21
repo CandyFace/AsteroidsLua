@@ -13,8 +13,8 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 	self.randomPos = randomPos
 	self.position = position
 	if self.randomPos then
-		asteroid:setPositionX(random(Services.Core:getXRes() - 50))
-		asteroid:setPositionY(random(Services.Core:getYRes() - 50))
+		asteroid:setPositionX(random(-Services.Core:getXRes() + 50, Services.Core:getXRes() - 50))
+		asteroid:setPositionY(random(-Services.Core:getYRes() + 50, Services.Core:getYRes() - 50))
 	else
 		asteroid:setPosition(self.position.x, self.position.y, 0)
 	end
@@ -27,6 +27,7 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 	asteroid.canSplit = 2
 	asteroid.mediumASize = 3
 	asteroid.lineSmooth = true
+	asteroid.randomDirection = random(0,10)
 	asteroid:setColorInt(152,181,193,255)
 	asteroid:setBlendingMode(2)
 	if asteroid.size == 7 then
@@ -47,7 +48,7 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 		asteroid.rotVal = 100
 		asteroid.speed = 10
 		asteroid:Scale (1,1,1)
-		asteroid.point = 200
+		asteroid.point = 100
 		asteroid.colSize = 20
 		asteroid.explosion = Sound("Sfx/explosion3.wav")
 	end
@@ -118,6 +119,7 @@ function Asteroid:Split(object)
 	object.asteroid.hit = true
 	object:setRandomPos(false)
 	player.score = player.score + object.asteroid.point
+	player.visualScore = player.visualScore + object.asteroid.point
 	newPos = Vector2(object.asteroid:getPosition().x, object.asteroid:getPosition().y)
 	object.asteroid:setPositionX(100000000)
 	if object.asteroid.size >= object.asteroid.mediumASize then

@@ -21,13 +21,13 @@ function Debris:UpdateDebris()
 	end
 end
 
-function Debris:Spread(object)
+function Debris:Spread(object, objectType)
 	for i = 1, count(debris) do
 		debris[i].position = Vector2(cos(degToRad(debris[i].direction + debriAngle)) * 1.15, sin(degToRad(debris[i].direction + debriAngle)) * 1.15)
 		debris[i].velocity = Vector2(cos(degToRad(debris[i].direction + debriAngle)) * debris[i].debriSpeed, sin(degToRad(debris[i].direction + debriAngle)) * debris[i].debriSpeed)
 		debriAngle = debriAngle + 45
 		debris[i].alive = true
-		debris[i]:Fire(Vector2(debris[i].position.x + object.asteroid:getPosition().x, debris[i].position.y + object.asteroid:getPosition().y),
+		debris[i]:Fire(Vector2(debris[i].position.x + objectType:getPosition().x, debris[i].position.y + objectType:getPosition().y),
 		Vector2(debris[i].velocity.x + 0, debris[i].velocity.y + 0), 0)
 	end
 end

@@ -9,7 +9,7 @@ function Player:Player(scene)
 	self.playerMain = SceneMesh.SceneMeshWithType(Mesh.LINE_LOOP_MESH)
 	self.playerMain.lineSmooth = true
 	self.turnSpeed = 4
-	self.movementSpeed = 5
+	self.movementSpeed = 7
 	self.bulletSpeed = 150
 	self.friction = 0.0010
 	self.invisTimer = 3
@@ -31,6 +31,7 @@ function Player:Player(scene)
 	self.gainExtraLifeSound = Sound("Sfx/GainExtraLife.wav")
 	self.hit = false
 	self.score = 0
+	self.visualScore = 0
 	self.life = 3
 	self.angle = 0
 	self.shieldOn = true
@@ -142,6 +143,7 @@ function Player:Update(dt)
 		end
 		
 		if keyInput:getKeyState(KEY_UP) then
+
 			self.velocity = Vector2(self.velocity.x + cos(degToRad(self.angle))*self.movementSpeed*dt, 
 							   self.velocity.y + sin(degToRad(self.angle))*self.movementSpeed*dt)
 			for i = 1, 4 do
@@ -199,7 +201,7 @@ function Player:UpdateHyperSpace(dt)
 		self.hyperSpaceLandSound:Play()
 		hyperSpaceActive = false
 		hyperSpaceTime = 0
-		print(randomDeath)
+		--print(randomDeath)
 		if randomDeath == 1 then
 			player:Explode(dt)
 			player:takeDamage(dt)
