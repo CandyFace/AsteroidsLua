@@ -38,7 +38,7 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 		asteroid.colSize = 100
 		asteroid.explosion = Sound("Sfx/explosion.wav")
 	elseif asteroid.size == 5 then
-		asteroid.speed = 6
+		asteroid.speed = 5
 		asteroid.rotVal = 50
 		asteroid:Scale (3,3,3)
 		asteroid.point = 50
@@ -46,7 +46,7 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 		asteroid.explosion = Sound("Sfx/explosion2.wav")
 	else
 		asteroid.rotVal = 100
-		asteroid.speed = 10
+		asteroid.speed = 7
 		asteroid:Scale (1,1,1)
 		asteroid.point = 100
 		asteroid.colSize = 20

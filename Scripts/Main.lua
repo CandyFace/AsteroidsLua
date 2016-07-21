@@ -58,6 +58,7 @@ coinTimer = 0
 totalCoins = 0
 minExtra = 10000
 maxExtra = 15000
+highScore = 0
 
 --Tables
 debris = {}
@@ -66,9 +67,12 @@ bullet = {}
 saucer = {}
 saucerBullet = {}
 
+ui = UI()
+ui:Init(scene)
+
 function Init()
 	player = Player(scene)
-	ui = UI()
+
 	
 	--Initializes 4 bullets on the screen
 	for i = 1, 4 do
@@ -96,30 +100,20 @@ function Init()
 	gameLabel.visible = false
 	descLabel.visible = false
 	scoreLabel.visible = true
-	timerLabel.visible = true
+	highScoreLabel.visible = true
 	coinLabel.visible = false
 	creditLabel.visible = false
 	newGame = false
 	gameOverTimer = 0
-	finishScore = 2080
+	finishScore = 2080 
 	waveTimer = 0
 	totalCoins = totalCoins - 1
 end
 
 function Update(dt)
-
-	if totalCoins < 1 and newGame then
-		coinTimer = coinTimer + 1 *dt
-		if round(coinTimer,0) % 2 == 0 then
-			coinLabel.visible = true
-		else
-			coinLabel.visible = false
-		end
-	end
-
+	ui:Update(dt)
 	if not newGame then
 		player:Update(dt)
-		ui:Update(dt)
 		
 		--Give player an extra life for getting x point.
 		if player.score >= minExtra and player.score < maxExtra then
@@ -149,7 +143,7 @@ function Update(dt)
 			waveTimer = waveTimer + 1*dt
 			if waveTimer >= 3 then
 				waveTimer = 0
-				finishScore = finishScore + 3680
+				finishScore = finishScore + 2080
 				reloadAsteroids = true
 			end
 		end
@@ -371,7 +365,7 @@ function onKeyDown(key)
 
 	end
 
-	if key == KEY_F1 then
+	if key == KEY_F3 then
 		totalCoins = totalCoins + 1
 	end
 
@@ -412,41 +406,6 @@ function stayWithinBoundary(object)
 		object:setPositionX(Services.Core:getXRes())
 	end
 end
-
--- UI Setup --
-scoreLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_FULL, 0)
-scene:addChild(scoreLabel)
-
-timerLabel = SceneLabel("", 50, "Walkway", Label.ANTIALIAS_FULL, 0)
-scene:addChild(timerLabel)
-
-gameOverLabel = SceneLabel("GAME OVER!", 80, "Walkway", Label.ANTIALIAS_FULL,0)
-gameLabel = SceneLabel("ASTEROIDS!", 160, "Walkway", Label.ANTIALIAS_FULL,0)
-coinLabel = SceneLabel("Insert coin", 40, "Walkway", Label.ANTIALIAS_FULL,0)
-descLabel = SceneLabel("Press SPACE to start!", 40, "Walkway", Label.ANTIALIAS_FULL,0)
-creditLabel = SceneLabel("©1979 ATARI INC", 40, "Walkway", Label.ANTIALIAS_FULL,0)
-gameOverLabel.visible = false
-gameLabel.visible = true
-descLabel.visible = true
-gameLabel:setColorInt(152,181,193,255)
-gameOverLabel:setColorInt(152,181,193,255)
-descLabel:setColorInt(152,181,193,255)
-coinLabel:setColorInt(152,181,193,255)
-creditLabel:setColorInt(152,181,193,255)
-scoreLabel:setColorInt(152,181,193,255)
-timerLabel:setColorInt(152,181,193,255)
-scene:addChild(gameOverLabel)
-scene:addChild(gameLabel)
-scene:addChild(descLabel)
-scene:addChild(coinLabel)
-scene:addChild(creditLabel)
-
-creditLabel:setPositionY(-Services.Core:getYRes() + 50)
-coinLabel:setPositionY(-Services.Core:getYRes() + 150)
-descLabel:setPositionY(-Services.Core:getYRes() + 200)
-scoreLabel:setPositionX(-Services.Core:getXRes() + 200)
-scoreLabel:setPositionY(Services.Core:getYRes() - 100)
-timerLabel:setPositionY(Services.Core:getYRes() - 100)
 
 --	Debugging --
 -- posYLabel = cast(level:getEntityById("posY", true), SceneLabel)
