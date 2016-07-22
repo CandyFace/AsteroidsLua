@@ -27,6 +27,7 @@ An extra life will be gained at every 10.000 points.
 
 Use Arrow keys to stear.  
 shoot using "x" and press space to start.  
+To use hyperspace, press s.  
 To insert a coin, press F3. The text will stop blinking afterwards.  
 
 #### Points
