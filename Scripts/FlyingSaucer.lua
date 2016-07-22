@@ -4,7 +4,6 @@ local position = Vector2(0.0,0.0)
 local randomPos = true
 local split = 0
 local size = 7
-
 -- All values in the struct will be independent when used
 function FlyingSaucer:FlyingSaucer(scene) -- This works like constructor
 	self.flyingSaucer = SceneMesh.SceneMeshWithType(Mesh.LINE_LOOP_MESH)
@@ -85,10 +84,10 @@ function FlyingSaucer:FlyOnCountDown()
 	--print("Saucer ".. saucerCountDown)
 	if saucerCountDown <= 0 and self.canFly then
 		self.canFly = false
-		saucerCountDown = random(15,30)
+		saucerCountDown = random(minCount,maxCount)
 	elseif saucerCountDown <= 0 then
 		self.canFly = true
-		saucerCountDown = random(15,30)
+		saucerCountDown = random(minCount,maxCount)
 		self.flyingSaucer:setPositionX(random(Services.Core:getXRes(),Services.Core:getXRes()))
 		self.flyingSaucer:setPositionY(random(-Services.Core:getYRes(),Services.Core:getYRes()))
 	end
@@ -129,7 +128,7 @@ function FlyingSaucer:Explode()
 
 	saucer.explosion:Play()
 	saucer.flyingSaucer:setPosition(10000,10000,0)
-	saucerCountDown = random(15,30)
+	saucerCountDown = random(minCount,maxCount)
 	saucer.canFly = false
 	--print("candie :" .. saucer.canDie)
 	if saucer.canDie > 0 then

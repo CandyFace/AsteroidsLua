@@ -34,7 +34,7 @@ scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_
 --print(scene:getDefaultCamera():getLocalShaderOptions()[1])	
 --print(scene:getDefaultCamera():hasFilterShader())
 
-scene:getDefaultCamera():setOrthoSize(resX, resY)
+scene:getDefaultCamera():setOrthoSize(1440, 900)
 level = SceneEntityInstance(scene, "Entities/level.entity")
 
 -- makes level entity child of scene
@@ -50,12 +50,13 @@ debriAngle = 0
 debriTimer = 0
 saucerTimer = 0
 saucerBulletDelay = 0
-saucerCountDown = random(10,30)
 amountOfAsteroids = 4
 newGame = true
 minExtra = 10000
 maxExtra = 15000
 highScore = 0
+minCount = 10
+maxCount = 20
 
 --Tables
 debris = {}
@@ -94,7 +95,6 @@ function Init()
 		asteroids[i] = Asteroid(scene)
 		totalAsteroids = asteroids[i]
 	end
-	saucerCountDown = random(10,30)
 	gameLabel.visible = false
 	descLabel.visible = false
 	scoreLabel.visible = true
@@ -106,12 +106,14 @@ function Init()
 	waitToSpawn = 3
 	totalQuarters = totalQuarters - 1
 	totalNumOfAsteroids = 28
+ 	saucerCountDown = random(minCount,maxCount)
 end
 
 function Update(dt)
 	ui:Update(dt)
 	if not newGame then
 		player:Update(dt)
+		--print(" " ..saucerCountDown)
 		
 		--Give player an extra life for getting x point.
 		if player.visualScore >= minExtra and player.visualScore <= maxExtra then
