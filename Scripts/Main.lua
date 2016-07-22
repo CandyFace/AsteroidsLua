@@ -1,5 +1,5 @@
 --[[ Thee who read this code, 
-shall be on his own, for truly there is no help to be given, 
+shall be venturing on their own terms, for truly there is no help to be given, 
 nor is there any explanation for those who should be lost or confused.
 
 An Asteroids clone made using PolyCode by CandyFace / Oliver Larsen - 2016 --]]
@@ -11,7 +11,6 @@ require "Scripts/Ammo"
 require "Scripts/Debris"
 require "Scripts/FlyingSaucer"
 
--- worldScale, posIterations
 scene = Scene(Scene.SCENE_2D)
 
 -- sets the orthographic camera resolution
@@ -54,8 +53,6 @@ saucerBulletDelay = 0
 saucerCountDown = random(10,30)
 amountOfAsteroids = 4
 newGame = true
-coinTimer = 0
-totalCoins = 0
 minExtra = 10000
 maxExtra = 15000
 highScore = 0
@@ -82,6 +79,7 @@ function Init()
 
 	for i = 1, 10 do
 		saucerBullet[i] = Ammo(scene)
+		saucerBullets = saucerBullet[i]
 	end
 
 	saucer = FlyingSaucer(scene)
@@ -105,9 +103,9 @@ function Init()
 	creditLabel.visible = false
 	newGame = false
 	gameOverTimer = 0
-	finishScore = 2080 
-	waveTimer = 0
-	totalCoins = totalCoins - 1
+	waitToSpawn = 3
+	totalQuarters = totalQuarters - 1
+	totalNumOfAsteroids = 28
 end
 
 function Update(dt)
@@ -116,7 +114,7 @@ function Update(dt)
 		player:Update(dt)
 		
 		--Give player an extra life for getting x point.
-		if player.score >= minExtra and player.score < maxExtra then
+		if player.visualScore >= minExtra and player.visualScore <= maxExtra then
 			player:GainExtraLife()
 			minExtra = minExtra + 10000
 			maxExtra = maxExtra + 15000
@@ -124,10 +122,7 @@ function Update(dt)
 	
 		if reloadAsteroids then
 			for i = 1, amountOfAsteroids do
-				asteroids[i]:setAsteroidSize(7)
-				--asteroids[i]:setRandomPos(true)
-				asteroids[i].asteroid.hit = false
-				asteroids[i].asteroid:setPosition(random(-Services.Core:getXRes() - 50, Services.Core:getXRes() + 50),random(-Services.Core:getYRes() - 50, Services.Core:getYRes() + 50),0)
+				asteroids[i]:RespawnAsteroids(asteroids[i])
 			end
 			reloadAsteroids = false
 		end
@@ -139,15 +134,121 @@ function Update(dt)
 		end
 	
 		--The score determines whether a wave has been completed
-		if player.score == finishScore then
-			waveTimer = waveTimer + 1*dt
-			if waveTimer >= 3 then
-				waveTimer = 0
-				finishScore = finishScore + 2080
+		if totalNumOfAsteroids <= 0 then
+			waitToSpawn = waitToSpawn - 1*dt
+			if waitToSpawn <= 0 then
+				waitToSpawn = 3
+				--finishScore = finishScore + 2080
+				totalNumOfAsteroids = 28
+				spawnExistingAsteroids = false
 				reloadAsteroids = true
+				table.remove(asteroids)
 			end
 		end
 	
+	if player.life > 0 or gameOverTimer < 3 then
+		saucer.saucerTimer = saucer.saucerTimer + 1*dt
+		saucerCountDown = saucerCountDown - 1*dt
+
+		for i = 1, count(debris) do
+			if circleIntersection(debris[i].debriMesh:getPosition2D(),player.playerMain:getPosition2D(),20) then
+				if not player.shieldOn then
+					player:Explode(dt)
+				end
+				player:takeDamage()
+			end
+		end
+
+		if not saucer.hit then
+			saucer:FlyOnCountDown()
+			for i = 1, count(bullet) do
+				if circleIntersection(saucer.flyingSaucer:getPosition2D(), bullet[i].shot:getPosition2D(), saucer.colSize) then
+					player.visualScore = player.visualScore + saucer.point 
+					totalDebris:Spread(saucer, saucer.flyingSaucer)
+					saucer:Explode()
+					bullet[i].shot:setPositionX(10000000)
+					bullet[i].alive = false
+					player.shotFired = false
+					bullet[i].canShoot = true
+					bulletIndex = 1
+					bullet[i].timer = 0
+				end
+			end
+
+			if circleIntersection(player.playerMain:getPosition2D(), saucer.flyingSaucer:getPosition2D(), saucer.colSize) then
+				if not player.shieldOn then
+						player:Explode(dt)
+				end
+				totalDebris:Spread(saucer, saucer.flyingSaucer)
+				player:takeDamage()
+				saucer:Explode()
+			end
+
+			for i = 1, count(saucerBullet) do
+				if circleIntersection(saucerBullet[i].shot:getPosition2D(), player.playerMain:getPosition2D(), 20) then
+					if not player.shieldOn then
+						player:Explode(dt)
+					end
+				player:takeDamage()
+				end
+			end
+		end
+
+		for index, object in pairs(asteroids) do
+			if not object.asteroid.hit then
+				object.asteroid:Roll(object.asteroid.rndRotVal * dt)
+				
+				if object.asteroid.randomDirection % 2 == 0 then
+					object.asteroid:setPositionX(object.asteroid:getPosition().x - cos(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
+					object.asteroid:setPositionY(object.asteroid:getPosition().y - sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
+				else
+					object.asteroid:setPositionX(object.asteroid:getPosition().x + cos(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
+					object.asteroid:setPositionY(object.asteroid:getPosition().y + sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
+				end
+				stayWithinBoundary(object.asteroid)
+				if not player.shieldOn then
+					if circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
+						player:Explode(dt)
+						player:takeDamage(dt)
+						totalDebris:Spread(object, object.asteroid)
+						totalAsteroids:Split(object)
+					end	
+				end
+				--saucer can be destroyed, but only by smaller asteroids
+				if object.asteroid.size < 5 then
+					if circleIntersection(object.asteroid:getPosition2D(), saucer.flyingSaucer:getPosition2D(), object.asteroid.colSize) then
+						totalDebris:Spread(object, object.asteroid)
+						saucer:Explode()
+						totalAsteroids:Split(object)
+					end
+				end
+				for i = 1, count(saucerBullet) do
+					if circleIntersection(saucerBullet[i].shot:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
+						totalDebris:Spread(object, object.asteroid)
+						totalAsteroids:Split(object)
+						saucerBullet[i].alive = false
+						saucerBullet[i].shot:setPosition(100000,100000,0)
+						saucerBullet[i].canShoot = true
+						saucer.shotFired = false
+					end
+				end
+	
+				for i = 1, count(bullet) do
+					if circleIntersection(object.asteroid:getPosition2D(), bullet[i].shot:getPosition2D(), object.asteroid.colSize) then
+						player:GatherPoint(object)
+						totalDebris:Spread(object, object.asteroid)
+						totalAsteroids:Split(object)
+						bullet[i].shot:setPositionX(10000000)
+						bullet[i].alive = false
+						player.shotFired = false
+						bullet[i].canShoot = true
+						bulletIndex = 1
+						bullet[i].timer = 0
+					end
+				end
+			end
+		end
+		
 		--Update debris
 		for i = 1, count(debris) do
 			debris[i]:UpdateDebris()
@@ -163,190 +264,69 @@ function Update(dt)
 			end
 		end
 	
-		-- Count time as long as life is above 0
-		if player.life > 0 then
-			player.survivalTimer = player.survivalTimer + 1*dt
-				saucer.saucerTimer = saucer.saucerTimer + 1*dt
-				saucerCountDown = saucerCountDown - 1*dt
-			
-		end
-
-		if not saucer.hit then
-			if player.life > 0 then
-				--print("Saucer ".. saucerCountDown)
-				if saucerCountDown <= 0 and saucer.canFly then
-					saucer.canFly = false
-					saucerCountDown = random(15,30)
-				elseif saucerCountDown <= 0 then
-					saucer.canFly = true
-					saucerCountDown = random(15,30)
-					saucer.flyingSaucer:setPositionX(random(Services.Core:getXRes(),Services.Core:getXRes()))
-					saucer.flyingSaucer:setPositionY(random(-Services.Core:getYRes(),Services.Core:getYRes()))
-				end
-
-				if saucer.canFly and saucerCountDown > 5 then
-					stayWithinBoundary(saucer.flyingSaucer)
-				end
-				--print(" " ..saucer.saucerTimer)
-				if saucer.canFly and saucer.saucerTimer > 3 then
-					saucer:ControlDirection(saucer, saucer.rotVal)
-					if saucer.saucerTimer > 6 then
-						saucer.saucerTimer = 0
-					end	
-				elseif saucer.canFly and saucerCountDown < 5 then
-						saucer:ControlDirection(saucer, saucer.rotVal)
-	
-				elseif saucer.canFly then
-					saucer:ControlDirection(saucer, 0)
-					if not saucer.saucerSound:isPlaying() then
-						saucer.saucerSound:Play(true)
-					end
-				elseif not saucer.canFly then
-					saucer.saucerSound:Stop()
-				end
-
-				for i = 1, count(bullet) do
-					if circleIntersection(saucer.flyingSaucer:getPosition2D(), bullet[i].shot:getPosition2D(), saucer.colSize) then
-						player.visualScore = player.visualScore + saucer.point 
-						totalDebris:Spread(saucer, saucer.flyingSaucer)
-						saucer:Explode()
-						bullet[i].shot:setPositionX(10000000)
-						bullet[i].alive = false
-						player.shotFired = false
-						bullet[i].canShoot = true
-						bulletIndex = 1
-						bullet[i].timer = 0
-					end
-				end
-
-				if circleIntersection(player.playerMain:getPosition2D(), saucer.flyingSaucer:getPosition2D(), saucer.colSize) then
-					if not player.shieldOn then
-							player:Explode(dt)
-					end
-					player:takeDamage()
-					totalDebris:Spread(saucer, saucer.flyingSaucer)
-					saucer:Explode()
-				end
-
-				for i = 1, count(saucerBullet) do
-					if circleIntersection(saucerBullet[i].shot:getPosition2D(), player.playerMain:getPosition2D(), 20) then
-						if not player.shieldOn then
-							player:Explode(dt)
-						end
-					player:takeDamage()
-					end
-				end
-			end
-		end
-	
-		for index, object in pairs(asteroids) do
-			if not object.asteroid.hit then
-				object.asteroid:Roll(object.asteroid.rndRotVal * dt)
-				
-				if object.asteroid.randomDirection % 2 == 0 then
-					object.asteroid:setPositionX(object.asteroid:getPosition().x - cos(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-					object.asteroid:setPositionY(object.asteroid:getPosition().y - sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-				else
-					object.asteroid:setPositionX(object.asteroid:getPosition().x + cos(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-					object.asteroid:setPositionY(object.asteroid:getPosition().y + sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-				end
-				if player.life > 0 then
-					stayWithinBoundary(object.asteroid)
-					if not player.shieldOn then
-						if circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
-							player:Explode(dt)
-							player:takeDamage(dt)
-							totalDebris:Spread(object, object.asteroid)
-							totalAsteroids:Split(object)
-						end	
-					end
 		
-					for i = 1, count(debris) do
-						if circleIntersection(debris[i].debriMesh:getPosition2D(),player.playerMain:getPosition2D(),20) then
-							if not player.shieldOn then
-								player:Explode(dt)
-							end
-							player:takeDamage()
-						end
-					end
-		
-					for i = 1, count(bullet) do
-						if circleIntersection(object.asteroid:getPosition2D(), bullet[i].shot:getPosition2D(), object.asteroid.colSize) then
-							totalDebris:Spread(object, object.asteroid)
-							totalAsteroids:Split(object)
-							bullet[i].shot:setPositionX(10000000)
-							bullet[i].alive = false
+			--Update bullets when a shot has been fired
+			for index, object in pairs(bullet) do
+				object.timer = object.timer + 1*dt
+				if player.shotFired then 
+					if bulletIndex <= table.getn(bullet) then
+						if object.canShoot then
+							object.canShoot = false
+							player:FireBullet(dt, object)
 							player.shotFired = false
-							bullet[i].canShoot = true
-							bulletIndex = 1
-							bullet[i].timer = 0
+							object.timer = 0
 						end
+						bulletIndex = bulletIndex + 1
 					end
 				end
+			object:UpdateBullet(dt)
 			end
-		end
 	
-		--Update bullets when a shot has been fired
-		for index, object in pairs(bullet) do
-			object.timer = object.timer + 1*dt
-			if player.shotFired then 
-				if bulletIndex <= table.getn(bullet) then
-					if object.canShoot then
-						object.canShoot = false
-						player:FireBullet(dt, object)
-						player.shotFired = false
-						object.timer = 0
+			--Update bullets when saucer has shot
+			--TODO: finish
+			for index, object in pairs(saucerBullet) do
+				saucerBulletDelay = saucerBulletDelay +1*dt
+				object.timer = object.timer + 1*dt
+				if round(saucerCountDown,0) % 2 == 0 then
+					saucer.shotFired = true
+				else
+					saucer.shotFired = false
+				end
+				if saucer.shotFired then
+					if object.canShoot and saucer.canFly and saucerBulletDelay > 5 then 
+							object.canShoot = false
+							saucer:FireBullet(dt, object, saucer)
+							saucerBulletDelay = 0
+							object.timer = 0
 					end
-					bulletIndex = bulletIndex + 1
 				end
+				
+			object:UpdateBullet(dt)
 			end
-		object:UpdateBullet(dt)
-		end
-
-		--Update bullets when saucer has shot
-		--TODO: finish
-		for index, object in pairs(saucerBullet) do
-			saucerBulletDelay = saucerBulletDelay +1*dt
-			object.timer = object.timer + 1*dt
-			if round(saucerCountDown,0) % 2 == 0 then
-				saucer.shotFired = true
-			else
-				saucer.shotFired = false
-			end
-			if saucer.shotFired then
-				if object.canShoot and saucer.canFly and saucerBulletDelay > 5 then 
-						object.canShoot = false
-						saucer:FireBullet(dt, object, saucer)
-						saucerBulletDelay = 0
-						object.timer = 0
+		
+			--Update bullets when timer has passed x seconds
+			for i = 1, count(bullet) do
+				if bullet[i].timer >= maxBulletAliveTime then
+					bullet[i].alive = false
+					bullet[i].shot:setPosition(100000,100000,0)
+					bullet[i].timer = maxBulletAliveTime
+					bullet[i].canShoot = true
+					player.shotFired = false
+					bulletIndex = 1
 				end
-			end
-			
-		object:UpdateBullet(dt)
-		end
+			end 
 	
-		--Update bullets when timer has passed x seconds
-		for i = 1, count(bullet) do
-			if bullet[i].timer >= maxBulletAliveTime then
-				bullet[i].alive = false
-				bullet[i].shot:setPosition(100000,100000,0)
-				bullet[i].timer = maxBulletAliveTime
-				bullet[i].canShoot = true
-				player.shotFired = false
-				bulletIndex = 1
-			end
-		end 
-
-		--Update saucer bullets when timer has passed x seconds
-		for i = 1, count(saucerBullet) do
-			if saucerBullet[i].timer >= maxBulletAliveTime then
-				saucerBullet[i].alive = false
-				saucerBullet[i].shot:setPosition(100000,100000,0)
-				saucerBullet[i].timer = maxBulletAliveTime
-				saucerBullet[i].canShoot = true
-				saucer.shotFired = false
-			end
-		end 
+			--Update saucer bullets when timer has passed x seconds
+			for i = 1, count(saucerBullet) do
+				if saucerBullet[i].timer >= maxBulletAliveTime then
+					saucerBullet[i].alive = false
+					saucerBullet[i].shot:setPosition(100000,100000,0)
+					saucerBullet[i].timer = maxBulletAliveTime
+					saucerBullet[i].canShoot = true
+					saucer.shotFired = false
+				end
+			end 
+		end
 	end
 end
 
@@ -366,14 +346,14 @@ function onKeyDown(key)
 	end
 
 	if key == KEY_F3 then
-		totalCoins = totalCoins + 1
+		totalQuarters = totalQuarters + 1
 	end
 
 	if key == KEY_ESCAPE then
 		Services.Core:Shutdown()
 	end
 
-	if key == KEY_SPACE and newGame and totalCoins > 0 then
+	if key == KEY_SPACE and newGame and totalQuarters > 0 then
 		Init()
 	end
 
@@ -429,8 +409,6 @@ end
 function degToRad(degrees)
 	return degrees * math.pi/180
 end
-
-
 
 --TODO: Make line intersection algorithm
 function circleIntersection(target, shooter, targetRadius)

@@ -3,6 +3,8 @@ require "Scripts/Player"
 
 -- UI Setup --
 function UI:Init(scene)
+	coinLabelTimer = 0
+	totalQuarters = 0
 	scoreLabel = SceneLabel("", 80, "Walkway", Label.ANTIALIAS_FULL, 0)
 	scene:addChild(scoreLabel)
 	
@@ -86,7 +88,11 @@ function UI:Update(dt)
 				for i = 1, 4 do
 					scene:removeEntity(player.playerExplosionMesh[i])
 				end
-		
+
+				for i = 1, debriPieces do
+					scene:removeEntity(debris[i].debriMesh)
+				end
+				
 				for i = 1, 10 do
 					scene:removeEntity(saucerBullet[i].shot)
 					scene:removeEntity(saucerBullet[i].pShot)
@@ -111,21 +117,19 @@ function UI:Update(dt)
 	else
 		ui:coinBlink(dt)
 	end
-
 	-- -- Disable debug labels
 	-- posYLabel.enabled = false
 	-- posXLabel.enabled = false
 	-- speedLabel.enabled = false
 	-- velXLabel.enabled = false
 	-- velYLabel.enabled = false
-	
 
 end
 
 function UI:coinBlink(dt)
-	if totalCoins < 1 and newGame then
-	coinTimer = coinTimer + 1 *dt
-		if round(coinTimer,0) % 2 == 0 then
+	if totalQuarters < 1 and newGame then
+	coinLabelTimer = coinLabelTimer + 1 *dt
+		if round(coinLabelTimer,0) % 2 == 0 then
 			coinLabel.visible = true
 		else
 			coinLabel.visible = false
@@ -133,13 +137,13 @@ function UI:coinBlink(dt)
 	end
 end
 
---debugger switch, used to call the debug panel when true.
-function toggleDebugger(debuggingSwitch)
-	if debuggingSwitch then
-		print('Debugger is disabled') 
-		return false
-	else
-		print('Debugger is enabled')
-		return true
-	end
-end
+-- --debugger switch, used to call the debug panel when true.
+-- function toggleDebugger(debuggingSwitch)
+-- 	if debuggingSwitch then
+-- 		print('Debugger is disabled') 
+-- 		return false
+-- 	else
+-- 		print('Debugger is enabled')
+-- 		return true
+-- 	end
+-- end

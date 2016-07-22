@@ -55,7 +55,6 @@ function FlyingSaucer:FlyingSaucer(scene) -- This works like constructor
 	self.explosion = Sound("Sfx/explosion2.wav")
 	self.direction = 0
 	self.shotAngle = 0
-	
 	--self.rndRotVal = math.random(-self.rotVal,self.rotVal)
 	scene:addChild(self.flyingSaucer)
 end
@@ -82,12 +81,37 @@ function FlyingSaucer:ControlDirection(object, rDir)
 	end
 end
 
-function FlyingSaucer:RandomSpawn()
-	if self.size == 5 then
-		self.saucerTime = random(-30,0)
-	else
-		self.saucerTime = random(-10,10)
+function FlyingSaucer:FlyOnCountDown()
+	--print("Saucer ".. saucerCountDown)
+	if saucerCountDown <= 0 and self.canFly then
+		self.canFly = false
+		saucerCountDown = random(15,30)
+	elseif saucerCountDown <= 0 then
+		self.canFly = true
+		saucerCountDown = random(15,30)
+		self.flyingSaucer:setPositionX(random(Services.Core:getXRes(),Services.Core:getXRes()))
+		self.flyingSaucer:setPositionY(random(-Services.Core:getYRes(),Services.Core:getYRes()))
 	end
+	if self.canFly and saucerCountDown > 5 then
+		stayWithinBoundary(self.flyingSaucer)
+	end
+	
+	if self.canFly and self.saucerTimer > 3 then
+		self:ControlDirection(self, self.rotVal)
+		if self.saucerTimer > 6 then
+			self.saucerTimer = 0
+		end	
+	elseif self.canFly and saucerCountDown < 5 then
+			self:ControlDirection(self, self.rotVal)
+	elseif self.canFly then
+		self:ControlDirection(self, 0)
+		if not self.saucerSound:isPlaying() then
+			self.saucerSound:Play(true)
+		end
+	elseif not self.canFly then
+		self.saucerSound:Stop()
+	end
+
 end
 
 function FlyingSaucer:FireBullet(dt, object, saucer)
@@ -118,9 +142,9 @@ end
 function FlyingSaucer:ShootingDifficulty(saucer)
 	if self.canDie > 0 then
 		self.shotAngle = degToRad(random(-360,360))
-	elseif player.score > 10000 then
+	elseif player.visualScore <= 10000 then
 		self.shotAngle = math.atan2(player.playerMain:getPosition().y - saucer.flyingSaucer:getPosition().y + random(-100,100), player.playerMain:getPosition().x - saucer.flyingSaucer:getPosition().x + random(-100,100))
-	elseif player.score > 35000 then 
+	elseif player.visualScore >= 10000 and player.visualScore <= 35000 then 
 		self.shotAngle = math.atan2(player.playerMain:getPosition().y - saucer.flyingSaucer:getPosition().y + random(-50,50), player.playerMain:getPosition().x - saucer.flyingSaucer:getPosition().x + random(-50,50))	
 	else
 		self.shotAngle = math.atan2(player.playerMain:getPosition().y - saucer.flyingSaucer:getPosition().y, player.playerMain:getPosition().x - saucer.flyingSaucer:getPosition().x)

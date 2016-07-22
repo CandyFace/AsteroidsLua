@@ -30,14 +30,12 @@ function Player:Player(scene)
 	self.hyperSpaceLandSound = Sound("Sfx/HyperspaceLand.wav")
 	self.gainExtraLifeSound = Sound("Sfx/GainExtraLife.wav")
 	self.hit = false
-	self.score = 0
 	self.visualScore = 0
 	self.life = 3
 	self.angle = 0
 	self.shieldOn = true
 	self.maxLife = self.life + 1
 	self.playerLifeCounter = {}
-	self.survivalTimer = 0
 	self.thrustTimer = 0
 	self.respawnTimer = 0
 	self.respawned = false
@@ -189,6 +187,10 @@ function Player:UpdateExplosion()
 			self.playerExplosionMesh[i]:setRoll(self.angle +45)
 		end
 	end
+end
+
+function Player:GatherPoint(object)
+	player.visualScore = player.visualScore + object.asteroid.point
 end
 
 function Player:UpdateHyperSpace(dt)

@@ -115,11 +115,15 @@ function Asteroid:Shapes()
 end
 
 function Asteroid:Split(object)
+
+	if totalNumOfAsteroids > 0 then
+		totalNumOfAsteroids = totalNumOfAsteroids - 1
+	end
 	object.asteroid.explosion:Play()
 	object.asteroid.hit = true
 	object:setRandomPos(false)
-	player.score = player.score + object.asteroid.point
-	player.visualScore = player.visualScore + object.asteroid.point
+	--player.score = player.score + object.asteroid.point
+
 	newPos = Vector2(object.asteroid:getPosition().x, object.asteroid:getPosition().y)
 	object.asteroid:setPositionX(100000000)
 	if object.asteroid.size >= object.asteroid.mediumASize then
@@ -135,6 +139,15 @@ function Asteroid:Split(object)
 		object.asteroid.split = object.asteroid.split + 1
 	end
 end
+
+function Asteroid:RespawnAsteroids(asteroidsI)
+	
+	asteroidsI:setAsteroidSize(7)
+	--asteroids[i]:setRandomPos(true)
+	asteroidsI.asteroid.hit = false
+	asteroidsI.asteroid:setPosition(random(-Services.Core:getXRes() - 50, Services.Core:getXRes() + 50),random(-Services.Core:getYRes() - 50, Services.Core:getYRes() + 50),0)
+end
+
 
 function Asteroid:setAsteroidSize(_size)
 	size = _size
