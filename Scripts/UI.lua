@@ -38,6 +38,26 @@ function UI:Init(scene)
 	scoreLabel:setPositionX(-Services.Core:getXRes() + 200)
 	scoreLabel:setPositionY(Services.Core:getYRes() - 100)
 	highScoreLabel:setPositionY(Services.Core:getYRes() - 100)
+
+	
+--	Debugging --
+-- posYLabel = cast(level:getEntityById("posY", true), SceneLabel)
+-- posXLabel = cast(level:getEntityById("posX", true), SceneLabel)
+-- speedLabel = cast(level:getEntityById("speed", true), SceneLabel)
+-- velXLabel = cast(level:getEntityById("velX", true), SceneLabel)
+-- velYLabel = cast(level:getEntityById("velY", true), SceneLabel)
+
+-- posXLabel:setPositionX(-Services.Core:getXRes() + 140)
+-- posXLabel:setPositionY(Services.Core:getYRes() - 60)
+-- posYLabel:setPositionX(-Services.Core:getXRes() + 140)
+-- posYLabel:setPositionY(Services.Core:getYRes() - 100)
+-- speedLabel:setPositionX(-Services.Core:getXRes() + 140)
+-- speedLabel:setPositionY(Services.Core:getYRes() - 140)
+-- velXLabel:setPositionX(-Services.Core:getXRes() + 140)
+-- velXLabel:setPositionY(Services.Core:getYRes() - 180)
+-- velYLabel:setPositionX(-Services.Core:getXRes() + 140)
+-- velYLabel:setPositionY(Services.Core:getYRes() - 220)
+--	END 	--
 end
 
 function UI:Update(dt)

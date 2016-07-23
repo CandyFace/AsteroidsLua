@@ -71,7 +71,6 @@ ui:Init(scene)
 function Init()
 	player = Player(scene)
 
-	
 	--Initializes 4 bullets on the screen
 	for i = 1, 4 do
 		bullet[i] = Ammo(scene)
@@ -164,16 +163,18 @@ function Update(dt)
 		if not saucer.hit then
 			saucer:FlyOnCountDown()
 			for i = 1, count(bullet) do
-				if circleIntersection(saucer.flyingSaucer:getPosition2D(), bullet[i].shot:getPosition2D(), saucer.colSize) then
-					player.visualScore = player.visualScore + saucer.point 
-					totalDebris:Spread(saucer, saucer.flyingSaucer)
-					saucer:Explode()
-					bullet[i].shot:setPositionX(10000000)
-					bullet[i].alive = false
-					player.shotFired = false
-					bullet[i].canShoot = true
-					bulletIndex = 1
-					bullet[i].timer = 0
+				if saucer.canFly then
+					if circleIntersection(saucer.flyingSaucer:getPosition2D(), bullet[i].shot:getPosition2D(), saucer.colSize) then
+						saucer:scorePoint()
+						totalDebris:Spread(saucer, saucer.flyingSaucer)
+						saucer:Explode()
+						bullet[i].shot:setPositionX(10000000)
+						bullet[i].alive = false
+						player.shotFired = false
+						bullet[i].canShoot = true
+						bulletIndex = 1
+						bullet[i].timer = 0
+					end
 				end
 			end
 
@@ -191,7 +192,10 @@ function Update(dt)
 					if not player.shieldOn then
 						player:Explode(dt)
 					end
+				saucerBullet[i].alive = false
+				saucerBullet[i].shot:setPosition(100000,100000,0)
 				player:takeDamage()
+				saucer:Explode()
 				end
 			end
 		end
@@ -214,6 +218,7 @@ function Update(dt)
 						player:takeDamage(dt)
 						totalDebris:Spread(object, object.asteroid)
 						totalAsteroids:Split(object)
+						saucer:Explode()
 					end	
 				end
 				--saucer can be destroyed, but only by smaller asteroids
@@ -265,7 +270,6 @@ function Update(dt)
 				debris[i].debriMesh:setPositionX(10000)
 			end
 		end
-	
 		
 			--Update bullets when a shot has been fired
 			for index, object in pairs(bullet) do
@@ -340,11 +344,10 @@ function onKeyDown(key)
 				player.shotFired = true
 			end
 		end
-	
+
 	-- if key == KEY_TAB then
 	-- 	debuggingSwitch = toggleDebugger(debuggingSwitch)
 	-- end
-
 	end
 
 	if key == KEY_F3 then
@@ -388,25 +391,6 @@ function stayWithinBoundary(object)
 		object:setPositionX(Services.Core:getXRes())
 	end
 end
-
---	Debugging --
--- posYLabel = cast(level:getEntityById("posY", true), SceneLabel)
--- posXLabel = cast(level:getEntityById("posX", true), SceneLabel)
--- speedLabel = cast(level:getEntityById("speed", true), SceneLabel)
--- velXLabel = cast(level:getEntityById("velX", true), SceneLabel)
--- velYLabel = cast(level:getEntityById("velY", true), SceneLabel)
-
--- posXLabel:setPositionX(-Services.Core:getXRes() + 140)
--- posXLabel:setPositionY(Services.Core:getYRes() - 60)
--- posYLabel:setPositionX(-Services.Core:getXRes() + 140)
--- posYLabel:setPositionY(Services.Core:getYRes() - 100)
--- speedLabel:setPositionX(-Services.Core:getXRes() + 140)
--- speedLabel:setPositionY(Services.Core:getYRes() - 140)
--- velXLabel:setPositionX(-Services.Core:getXRes() + 140)
--- velXLabel:setPositionY(Services.Core:getYRes() - 180)
--- velYLabel:setPositionX(-Services.Core:getXRes() + 140)
--- velYLabel:setPositionY(Services.Core:getYRes() - 220)
---	END 	--
 
 function degToRad(degrees)
 	return degrees * math.pi/180

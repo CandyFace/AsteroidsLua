@@ -124,8 +124,7 @@ function FlyingSaucer:FireBullet(dt, object, saucer)
 end
 
 function FlyingSaucer:Explode()
-	player.visualScore = player.visualScore + saucer.point 
-
+	
 	saucer.explosion:Play()
 	saucer.flyingSaucer:setPosition(10000,10000,0)
 	saucerCountDown = random(minCount,maxCount)
@@ -136,6 +135,10 @@ function FlyingSaucer:Explode()
 	else
 		saucer:SmallerAsteroid()
 	end
+end
+
+function FlyingSaucer:scorePoint()
+	player.visualScore = player.visualScore + saucer.point 
 end
 
 function FlyingSaucer:ShootingDifficulty(saucer)
