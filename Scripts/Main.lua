@@ -26,11 +26,14 @@ Services.ResourceManager:addArchive("hdr.pak")
 Services.ResourceManager:addDirResource("hdr", true)
 scene:getDefaultCamera():setPostFilterByName("HDRProcessBloom")
 
-scene:getDefaultCamera():getLocalShaderOptions()[1]:addParam(ProgramParam.PARAM_NUMBER, "brightThreshold"):setNumber(0.40)
-scene:getDefaultCamera():getLocalShaderOptions()[2]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.002)
-scene:getDefaultCamera():getLocalShaderOptions()[3]:addParam(ProgramParam.PARAM_NUMBER, "blurSize"):setNumber(0.002)
-scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "bloomFactor"):setNumber(1.5)
-scene:getDefaultCamera():getLocalShaderOptions()[4]:addParam(ProgramParam.PARAM_NUMBER, "exposure"):setNumber(0)
+getShaderLocalOptions = scene:getDefaultCamera():getLocalShaderOptions()
+paramNUMBER = ProgramParam.PARAM_NUMBER
+
+getShaderLocalOptions[1]:addParam(paramNUMBER, "brightThreshold"):setNumber(0.40)
+getShaderLocalOptions[2]:addParam(paramNUMBER, "blurSize"):setNumber(0.002)
+getShaderLocalOptions[3]:addParam(paramNUMBER, "blurSize"):setNumber(0.002)
+getShaderLocalOptions[4]:addParam(paramNUMBER, "bloomFactor"):setNumber(1.5)
+getShaderLocalOptions[4]:addParam(paramNUMBER, "exposure"):setNumber(0)
 --print(scene:getDefaultCamera():getLocalShaderOptions()[1])	
 --print(scene:getDefaultCamera():hasFilterShader())
 
@@ -94,6 +97,7 @@ function Init()
 		asteroids[i] = Asteroid(scene)
 		totalAsteroids = asteroids[i]
 	end
+
 	gameLabel.visible = false
 	descLabel.visible = false
 	scoreLabel.visible = true
@@ -112,7 +116,6 @@ function Update(dt)
 	ui:Update(dt)
 	if not newGame then
 		player:Update(dt)
-		--print(" " ..saucerCountDown)
 		
 		--Give player an extra life for getting x point.
 		if player.visualScore >= minExtra and player.visualScore <= maxExtra then
@@ -139,7 +142,6 @@ function Update(dt)
 			waitToSpawn = waitToSpawn - 1*dt
 			if waitToSpawn <= 0 then
 				waitToSpawn = 3
-				--finishScore = finishScore + 2080
 				totalNumOfAsteroids = 28
 				spawnExistingAsteroids = false
 				reloadAsteroids = true
@@ -153,9 +155,7 @@ function Update(dt)
 
 		for i = 1, count(debris) do
 			if circleIntersection(debris[i].debriMesh:getPosition2D(),player.playerMain:getPosition2D(),20) then
-				if not player.shieldOn then
-					player:Explode(dt)
-				end
+				player:Explode(dt)
 				player:takeDamage()
 			end
 		end
@@ -179,9 +179,7 @@ function Update(dt)
 			end
 
 			if circleIntersection(player.playerMain:getPosition2D(), saucer.flyingSaucer:getPosition2D(), saucer.colSize) then
-				if not player.shieldOn then
-						player:Explode(dt)
-				end
+				player:Explode(dt)
 				totalDebris:Spread(saucer, saucer.flyingSaucer)
 				player:takeDamage()
 				saucer:Explode()
@@ -189,13 +187,11 @@ function Update(dt)
 
 			for i = 1, count(saucerBullet) do
 				if circleIntersection(saucerBullet[i].shot:getPosition2D(), player.playerMain:getPosition2D(), 20) then
-					if not player.shieldOn then
-						player:Explode(dt)
-					end
-				saucerBullet[i].alive = false
-				saucerBullet[i].shot:setPosition(100000,100000,0)
-				player:takeDamage()
-				saucer:Explode()
+					player:Explode(dt)
+					saucerBullet[i].alive = false
+					saucerBullet[i].shot:setPosition(100000,100000,0)
+					player:takeDamage()
+					saucer:Explode()
 				end
 			end
 		end
@@ -212,15 +208,13 @@ function Update(dt)
 					object.asteroid:setPositionY(object.asteroid:getPosition().y + sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
 				end
 				stayWithinBoundary(object.asteroid)
-				if not player.shieldOn then
-					if circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
-						player:Explode(dt)
-						player:takeDamage(dt)
-						totalDebris:Spread(object, object.asteroid)
-						totalAsteroids:Split(object)
-						saucer:Explode()
-					end	
-				end
+				if circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
+					player:Explode(dt)
+					player:takeDamage(dt)
+					totalDebris:Spread(object, object.asteroid)
+					totalAsteroids:Split(object)
+					saucer:Explode()
+				end	
 				--saucer can be destroyed, but only by smaller asteroids
 				if object.asteroid.size < 5 then
 					if circleIntersection(object.asteroid:getPosition2D(), saucer.flyingSaucer:getPosition2D(), object.asteroid.colSize) then
@@ -262,7 +256,6 @@ function Update(dt)
 			debriTimer = debriTimer + 1 *dt
 			if debris[i].alive then
 				if debriTimer > 0.5 then
-					--debris[i].debriMesh.enabled = false
 					debris[i].alive = false
 					debriTimer = 0
 				end
@@ -289,7 +282,6 @@ function Update(dt)
 			end
 	
 			--Update bullets when saucer has shot
-			--TODO: finish
 			for index, object in pairs(saucerBullet) do
 				saucerBulletDelay = saucerBulletDelay +1*dt
 				object.timer = object.timer + 1*dt
@@ -400,7 +392,6 @@ end
 function circleIntersection(target, shooter, targetRadius)
 	_checkX = target.x - shooter.x
 	_checkY = target.y - shooter.y
-
 	_rad = targetRadius
 
 	if ((_checkX * _checkX) + (_checkY * _checkY) <= _rad * _rad) then

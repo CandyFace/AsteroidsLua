@@ -120,8 +120,6 @@ function UI:Update(dt)
 				saucer.saucerSound:Stop()
 				scene:removeEntity(saucer.flyingSaucer)
 		
-		
-		
 				collectgarbage()
 				newGame = true
 				gameOverLabel.visible = false

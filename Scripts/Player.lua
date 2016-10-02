@@ -33,7 +33,6 @@ function Player:Player(scene)
 	self.visualScore = 0
 	self.life = 3
 	self.angle = 0
-	self.shieldOn = true
 	self.maxLife = self.life + 1
 	self.playerLifeCounter = {}
 	self.thrustTimer = 0
@@ -110,7 +109,7 @@ end
 
 function Player:Update(dt)	
 	player:UpdatePlayerLife()
-	player:shield(dt)
+	--player:shield(dt)
 	player:UpdateExplosion()
 
 	if hyperSpaceActive and self.respawned == false then
@@ -249,29 +248,29 @@ function Player:UpdatePlayerLife()
 end
 
 --Ensuring no kill on spawn, and respawn
-function Player:shield(dt)
-	if self.shieldOn then
-		self.invisTimer = self.invisTimer - 1*dt
-		counter = counter + 4 *dt
-		--print(counter .. " ")
-			if round(counter,0) % 2 == 0 then
-				self.playerMain.visible = false
-			else
-				self.playerMain.visible = true
-			end
-			if counter >= 3 then
-				counter = 1
-			end
-		if self.invisTimer <= 0 then
-			self.invisTimer = 3
-			counter = 1
-			self.shieldOn = false
-		end
-	end
-end
+-- function Player:shield(dt)
+-- 	if self.shieldOn then
+-- 		self.invisTimer = self.invisTimer - 1*dt
+-- 		counter = counter + 4 *dt
+-- 		--print(counter .. " ")
+-- 			if round(counter,0) % 2 == 0 then
+-- 				self.playerMain.visible = false
+-- 			else
+-- 				self.playerMain.visible = true
+-- 			end
+-- 			if counter >= 3 then
+-- 				counter = 1
+-- 			end
+-- 		if self.invisTimer <= 0 then
+-- 			self.invisTimer = 3
+-- 			counter = 1
+-- 			self.shieldOn = false
+-- 		end
+-- 	end
+-- end
 
 function Player:takeDamage(dt)
-	if self.life > 0 and not self.shieldOn then
+	if self.life > 0 then
 		self.life = self.life - 1 
 		self.velocity = Vector2(0,0)
 		self.respawned = true
@@ -286,8 +285,7 @@ function Player:takeDamage(dt)
 end
 
 function Player:Respawn()
-	if self.respawnTimer > 3 and not self.shieldOn and self.life > 0 then
-		self.shieldOn = true
+	if self.respawnTimer > 3 and self.life > 0 then
 		self.playerMain:setPosition(0,0,0)
 		self.thrustMesh:setPosition(0,0)
 

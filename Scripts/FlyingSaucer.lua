@@ -114,7 +114,6 @@ function FlyingSaucer:FlyOnCountDown()
 end
 
 function FlyingSaucer:FireBullet(dt, object, saucer)
-		--self.shotAngle = math.atan2(player.playerMain:getPosition().y - saucer.flyingSaucer:getPosition().y, player.playerMain:getPosition().x - saucer.flyingSaucer:getPosition().x)
 		saucer:ShootingDifficulty(saucer)
 		object.position = Vector2(cos(object.direction + saucer.shotAngle) * 1.15, sin(object.direction + saucer.shotAngle) * 1.15)
 		object.velocity = Vector2(cos(object.direction + saucer.shotAngle) * saucer.bulletSpeed, sin(object.direction + saucer.shotAngle) * saucer.bulletSpeed)
@@ -124,7 +123,6 @@ function FlyingSaucer:FireBullet(dt, object, saucer)
 end
 
 function FlyingSaucer:Explode()
-	
 	saucer.explosion:Play()
 	saucer.flyingSaucer:setPosition(10000,10000,0)
 	saucerCountDown = random(minCount,maxCount)
