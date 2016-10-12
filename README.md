@@ -9,9 +9,8 @@ My goal for this clone was also to try to simulate some of that gorgeous vector 
 ![game](https://thumbs.gfycat.com/PotableJadedCaterpillar-size_restricted.gif)
 
 ### Features
-* Vector glow
-* Spawn protection
-* Recognizable asteroid shapes
+* Authentic pixel collision
+* Classic asteroid shapes
 * Hyperspace
 * Increasingly difficult saucers (as in the original)
 * Insert coin
@@ -26,7 +25,7 @@ Hyperspace can be used in emergencies, teleporting the player to a random destin
 An extra life will be gained at every 10.000 points. 
 
 Use Arrow keys to stear.  
-shoot using "x" and press space to start.  
+shoot using "x", insert a coin and press space to start.
 To use hyperspace, press s.  
 To insert a coin, press F3. The text will stop blinking afterwards.  
 
