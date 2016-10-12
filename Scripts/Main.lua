@@ -2,7 +2,8 @@
 shall be venturing on their own terms, for truly there is no help to be given, 
 nor is there any explanation for those who should be lost or confused.
 
-An Asteroids clone made using PolyCode by CandyFace / Oliver Larsen - 2016 --]]
+An Asteroids clone made using Polycode by CandyFace / Oliver Larsen - 2016 --
+Thanks to: Ivan for creating Polycode and Fodinabor for helping understanding the engine]]
 
 require "Scripts/Player"
 require "Scripts/UI"
@@ -44,12 +45,10 @@ level = SceneEntityInstance(scene, "Entities/level.entity")
 scene:addChild(level)
 
 -- Globals
-isPressed = true
 reloadAsteroids = false
 maxBulletAliveTime = 1.5
 bulletIndex = 1
 debriPieces = 8
-debriAngle = 0
 debriTimer = 0
 saucerTimer = 0
 saucerBulletDelay = 0
@@ -60,6 +59,8 @@ maxExtra = 15000
 highScore = 0
 minCount = 10
 maxCount = 20
+sumOfPosX = 0
+sumOfPosY = 0
 
 --Tables
 debris = {}
@@ -148,13 +149,14 @@ function Update(dt)
 				table.remove(asteroids)
 			end
 		end
-	
+
 	if player.life > 0 or gameOverTimer < 3 then
 		saucer.saucerTimer = saucer.saucerTimer + 1*dt
 		saucerCountDown = saucerCountDown - 1*dt
 
 		for i = 1, count(debris) do
-			if circleIntersection(debris[i].debriMesh:getPosition2D(),player.playerMain:getPosition2D(),20) then
+			local circleIntersect = circleIntersection(debris[i].debriMesh:getPosition2D(),player.playerMain:getPosition2D(),20)
+			if circleIntersect then
 				player:Explode(dt)
 				player:takeDamage()
 			end
@@ -164,34 +166,46 @@ function Update(dt)
 			saucer:FlyOnCountDown()
 			for i = 1, count(bullet) do
 				if saucer.canFly then
-					if circleIntersection(saucer.flyingSaucer:getPosition2D(), bullet[i].shot:getPosition2D(), saucer.colSize) then
-						saucer:scorePoint()
-						totalDebris:Spread(saucer, saucer.flyingSaucer)
-						saucer:Explode()
-						bullet[i].shot:setPositionX(10000000)
-						bullet[i].alive = false
-						player.shotFired = false
-						bullet[i].canShoot = true
-						bulletIndex = 1
-						bullet[i].timer = 0
+					local circleIntersect = circleIntersection(saucer.flyingSaucer:getPosition2D(), bullet[i].shot:getPosition2D(), saucer.colSize)
+					if circleIntersect then
+						local check_col = check_collision(saucer.flyingSaucer, bullet[i].shot)
+							if check_col == 1 then
+							saucer:scorePoint()
+							totalDebris:Spread(saucer, saucer.flyingSaucer)
+							saucer:Explode()
+							bullet[i].shot:setPositionX(10000000)
+							bullet[i].alive = false
+							player.shotFired = false
+							bullet[i].canShoot = true
+							bulletIndex = 1
+							bullet[i].timer = 0
+						end
 					end
 				end
 			end
 
-			if circleIntersection(player.playerMain:getPosition2D(), saucer.flyingSaucer:getPosition2D(), saucer.colSize) then
-				player:Explode(dt)
-				totalDebris:Spread(saucer, saucer.flyingSaucer)
-				player:takeDamage()
-				saucer:Explode()
+			local circlePSIntersect = circleIntersection(player.playerMain:getPosition2D(), saucer.flyingSaucer:getPosition2D(), saucer.colSize)
+			if circlePSIntersect then
+				local check_col = check_collision(player.playerMain, saucer.flyingSaucer)
+				if check_col == 1 then
+					player:Explode(dt)
+					totalDebris:Spread(saucer, saucer.flyingSaucer)
+					player:takeDamage()
+					saucer:Explode()
+				end
 			end
 
 			for i = 1, count(saucerBullet) do
-				if circleIntersection(saucerBullet[i].shot:getPosition2D(), player.playerMain:getPosition2D(), 20) then
-					player:Explode(dt)
-					saucerBullet[i].alive = false
-					saucerBullet[i].shot:setPosition(100000,100000,0)
-					player:takeDamage()
-					saucer:Explode()
+				local circleSBPIntersect = circleIntersection(saucerBullet[i].shot:getPosition2D(), player.playerMain:getPosition2D(), 20)
+				if circleSBPIntersect then
+					local check_col = check_collision(saucerBullet[i].shot, player.playerMain)
+					if check_col == 1 then
+						player:Explode(dt)
+						saucerBullet[i].alive = false
+						saucerBullet[i].shot:setPosition(100000,100000,0)
+						player:takeDamage()
+						saucer:Explode()
+					end
 				end
 			end
 		end
@@ -199,32 +213,37 @@ function Update(dt)
 		for index, object in pairs(asteroids) do
 			if not object.asteroid.hit then
 				object.asteroid:Roll(object.asteroid.rndRotVal * dt)
-				
-				if object.asteroid.randomDirection % 2 == 0 then
-					object.asteroid:setPositionX(object.asteroid:getPosition().x - cos(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-					object.asteroid:setPositionY(object.asteroid:getPosition().y - sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-				else
-					object.asteroid:setPositionX(object.asteroid:getPosition().x + cos(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
-					object.asteroid:setPositionY(object.asteroid:getPosition().y + sin(degToRad(object.asteroid.rndRotVal)) * object.asteroid.rndSpeed)
+
+				translateObject(object.asteroid)
+
+				local asteroidBoundary = stayWithinBoundary(object.asteroid)
+				local circlePAIntersect = circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) 
+				if circlePAIntersect then
+					local check_col = check_collision(object.asteroid, player.playerMain)
+
+					if check_col == 1 then
+						player:Explode(dt)
+						player:takeDamage(dt)
+						totalDebris:Spread(object, object.asteroid)
+						totalAsteroids:Split(object)
+						saucer:Explode()
+					end
 				end
-				stayWithinBoundary(object.asteroid)
-				if circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
-					player:Explode(dt)
-					player:takeDamage(dt)
-					totalDebris:Spread(object, object.asteroid)
-					totalAsteroids:Split(object)
-					saucer:Explode()
-				end	
 				--saucer can be destroyed, but only by smaller asteroids
 				if object.asteroid.size < 5 then
-					if circleIntersection(object.asteroid:getPosition2D(), saucer.flyingSaucer:getPosition2D(), object.asteroid.colSize) then
+					local circleASIntersect = circleIntersection(object.asteroid:getPosition2D(), saucer.flyingSaucer:getPosition2D(), object.asteroid.colSize)
+					
+					if circleASIntersect then
 						totalDebris:Spread(object, object.asteroid)
 						saucer:Explode()
 						totalAsteroids:Split(object)
+					
 					end
 				end
 				for i = 1, count(saucerBullet) do
-					if circleIntersection(saucerBullet[i].shot:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) then
+					local circleSAIntersect = circleIntersection(saucerBullet[i].shot:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize)
+					
+					if circleSAIngersect then
 						totalDebris:Spread(object, object.asteroid)
 						totalAsteroids:Split(object)
 						saucerBullet[i].alive = false
@@ -234,100 +253,115 @@ function Update(dt)
 					end
 				end
 	
+				local killTimer = 0
 				for i = 1, count(bullet) do
-					if circleIntersection(object.asteroid:getPosition2D(), bullet[i].shot:getPosition2D(), object.asteroid.colSize) then
-						player:GatherPoint(object)
-						totalDebris:Spread(object, object.asteroid)
-						totalAsteroids:Split(object)
-						bullet[i].shot:setPositionX(10000000)
-						bullet[i].alive = false
-						player.shotFired = false
-						bullet[i].canShoot = true
-						bulletIndex = 1
-						bullet[i].timer = 0
+					local circleABIntersect = circleIntersection(object.asteroid:getPosition2D(), bullet[i].shot:getPosition2D(), object.asteroid.colSize)
+					if circleABIntersect then
+						killTimer = killTimer + 1 * dt
+						local check_col = check_collision(object.asteroid, bullet[i].shot)
+						if check_col == 1 then
+							player:GatherPoint(object)
+							totalDebris:Spread(object, object.asteroid)
+							totalAsteroids:Split(object)
+							bullet[i].shot:setPositionX(10000000)
+							bullet[i].alive = false
+							player.shotFired = false
+							bullet[i].canShoot = true
+							bulletIndex = 1
+							bullet[i].timer = 0
+							killTimer = 0
+						elseif killTimer >= 0.018 then
+							player:GatherPoint(object)
+							totalDebris:Spread(object, object.asteroid)
+							totalAsteroids:Split(object)
+							bullet[i].shot:setPositionX(10000000)
+							bullet[i].alive = false
+							player.shotFired = false
+							bullet[i].canShoot = true
+							bulletIndex = 1
+							bullet[i].timer = 0
+							killTimer = 0
+						end
+										print("killTimer: "..killTimer)
 					end
 				end
 			end
 		end
 		
-		--Update debris
-		for i = 1, count(debris) do
-			debris[i]:UpdateDebris()
-			debriTimer = debriTimer + 1 *dt
-			if debris[i].alive then
-				if debriTimer > 0.5 then
-					debris[i].alive = false
-					debriTimer = 0
+			--Update debris
+			for i = 1, count(debris) do
+				debris[i]:UpdateDebris()
+				debriTimer = debriTimer + 1 *dt
+				if debris[i].alive then
+					if debriTimer > 0.5 then
+						debris[i].alive = false
+						debriTimer = 0
+					end
+				elseif  debriTimer > 0.5 then
+					debris[i].debriMesh:setPositionX(10000)
 				end
-			elseif  debriTimer > 0.5 then
-				debris[i].debriMesh:setPositionX(10000)
 			end
-		end
 		
 			--Update bullets when a shot has been fired
-			for index, object in pairs(bullet) do
-				object.timer = object.timer + 1*dt
+			for i = 1, count(bullet) do
+				bullet[i].timer = bullet[i].timer + 1*dt
 				if player.shotFired then 
 					if bulletIndex <= table.getn(bullet) then
-						if object.canShoot then
-							object.canShoot = false
-							player:FireBullet(dt, object)
+						if bullet[i].canShoot then
+							bullet[i].canShoot = false
+							player:FireBullet(dt, bullet[i])
 							player.shotFired = false
-							object.timer = 0
+							bullet[i].timer = 0
 						end
 						bulletIndex = bulletIndex + 1
 					end
 				end
-			object:UpdateBullet(dt)
+			bullet[i]:UpdateBullet(dt)
 			end
 	
 			--Update bullets when saucer has shot
-			for index, object in pairs(saucerBullet) do
+			for i = 1, count(saucerBullet) do
 				saucerBulletDelay = saucerBulletDelay +1*dt
-				object.timer = object.timer + 1*dt
+				saucerBullet[i].timer = saucerBullet[i].timer + 1*dt
 				if round(saucerCountDown,0) % 2 == 0 then
 					saucer.shotFired = true
 				else
 					saucer.shotFired = false
 				end
 				if saucer.shotFired then
-					if object.canShoot and saucer.canFly and saucerBulletDelay > 5 then 
-							object.canShoot = false
-							saucer:FireBullet(dt, object, saucer)
-							saucerBulletDelay = 0
-							object.timer = 0
+					if saucerBullet[i].canShoot and saucer.canFly and saucerBulletDelay > 5 then 
+						saucerBullet[i].canShoot = false
+						saucer:FireBullet(dt, saucerBullet[i], saucer)
+						saucerBulletDelay = 0
+						saucerBullet[i].timer = 0
 					end
 				end
-				
-			object:UpdateBullet(dt)
-			end
-		
+			saucerBullet[i]:UpdateBullet(dt)
+			end			
+
 			--Update bullets when timer has passed x seconds
-			for i = 1, count(bullet) do
-				if bullet[i].timer >= maxBulletAliveTime then
-					bullet[i].alive = false
-					bullet[i].shot:setPosition(100000,100000,0)
-					bullet[i].timer = maxBulletAliveTime
-					bullet[i].canShoot = true
-					player.shotFired = false
-					bulletIndex = 1
-				end
-			end 
-	
-			--Update saucer bullets when timer has passed x seconds
-			for i = 1, count(saucerBullet) do
-				if saucerBullet[i].timer >= maxBulletAliveTime then
-					saucerBullet[i].alive = false
-					saucerBullet[i].shot:setPosition(100000,100000,0)
-					saucerBullet[i].timer = maxBulletAliveTime
-					saucerBullet[i].canShoot = true
-					saucer.shotFired = false
-				end
-			end 
+			updateObjectAtX(bullet, player)
+			-- --Update saucer bullets when timer has passed x seconds
+			updateObjectAtX(saucerBullet, saucer)
 		end
 	end
 end
 
+function translateObject(object)
+	local translatedPos
+	local objectPos = object:getPosition()
+	if object.randomDirection % 2 == 0 then
+		translatedPos = object:setPositionX(objectPos.x - cos(degToRad(object.rndRotVal)) * object.rndSpeed)
+		translatedPos = object:setPositionY(objectPos.y - sin(degToRad(object.rndRotVal)) * object.rndSpeed)
+		return translatedPos
+	else
+		translatedPos = object:setPositionX(objectPos.x + cos(degToRad(object.rndRotVal)) * object.rndSpeed)
+		translatedPos = object:setPositionY(objectPos.y + sin(degToRad(object.rndRotVal)) * object.rndSpeed)
+		return translatedPos
+	end
+end
+
+local isPressed = true
 function onKeyDown(key)
 	if not newGame then
 		if player.life > 0 and player.respawned == false then
@@ -367,28 +401,31 @@ function onKeyUp(key)
 end
 
 function stayWithinBoundary(object)
-	if object:getPosition().y < -Services.Core:getYRes() then
-		object:setPositionY(Services.Core:getYRes())
+	local playerPos = object:getPosition2D()
+	local yRes = Services.Core:getYRes()
+	local xRes = Services.Core:getXRes()
+	if playerPos.y < -yRes then
+		object:setPositionY(yRes)
 	end
 
-	if object:getPosition().y > Services.Core:getYRes() then
-		object:setPositionY(-Services.Core:getYRes())
+	if playerPos.y > yRes then
+		object:setPositionY(-yRes)
 	end
 
-	if object:getPosition().x >  Services.Core:getXRes() then
-		object:setPositionX(- Services.Core:getXRes())
+	if playerPos.x > xRes then
+		object:setPositionX(-xRes)
 	end
 
-	if object:getPosition().x < -Services.Core:getXRes() then
-		object:setPositionX(Services.Core:getXRes())
+	if playerPos.x < -xRes then
+		object:setPositionX(xRes)
 	end
 end
 
-function degToRad(degrees)
+ function degToRad(degrees)
 	return degrees * math.pi/180
 end
 
---TODO: Make line intersection algorithm
+local _checkX, _checkY, _rad
 function circleIntersection(target, shooter, targetRadius)
 	_checkX = target.x - shooter.x
 	_checkY = target.y - shooter.y
@@ -399,6 +436,92 @@ function circleIntersection(target, shooter, targetRadius)
 	else
 		return false
 	end
+end
+
+function updateObjectAtX(object1, object2)
+	for i = 1, count(object1) do
+		if object1[i].timer >= maxBulletAliveTime then
+			object1[i].alive = false
+			object1[i].shot:setPosition(100000,100000,0)
+			object1[i].timer = maxBulletAliveTime
+			object1[i].canShoot = true
+			object2.shotFired = false
+			
+			if #object2 == #player then
+				bulletIndex = 1
+			end
+		end
+	end 
+end
+
+local pTotal
+local p0, p1, p2, p3, p4, p5, p6, p7, ix, iy 
+local COLLISION = 1
+local NOCOLLSION = 0
+local test = 0
+function check_collision(object, target)
+	local objectPos = object:getPosition2D()
+	local targetPos = target:getPosition2D()
+	local objectVertex = object:getMesh()
+	local targetVertex = target:getMesh()
+	local objectScale = object:getScale()
+	local targetScale = target:getScale()
+	local objectOrientationM = object:getConcatenatedRollMatrix()
+	local targetOrientationM = target:getConcatenatedRollMatrix()
+
+	for i = 0, asteroid:getMesh():getVertexCount() do
+		local objectVPos0 = objectOrientationM:multVector(objectVertex:getVertexPosition(i))
+		local objectVPos1 = objectOrientationM:multVector(objectVertex:getVertexPosition(i+1))
+		for j = 0, target:getMesh():getVertexCount() do
+			local targetVPos0 = targetOrientationM:multVector(targetVertex:getVertexPosition(j)) 
+			local targetVPos1 = targetOrientationM:multVector(targetVertex:getVertexPosition(j+1))
+
+			p0 = objectPos.x+objectVPos0.x*objectScale.x
+			p1 = objectPos.y+objectVPos0.y*objectScale.y
+			p2 = objectPos.x+objectVPos1.x*objectScale.x
+			p3 = objectPos.y+objectVPos1.y*objectScale.y
+			p4 = targetPos.x+targetVPos0.x*targetScale.x
+			p5 = targetPos.y+targetVPos0.y*targetScale.y
+			p6 = targetPos.x+targetVPos1.x*targetScale.x
+			p7 = targetPos.y+targetVPos1.y*targetScale.y
+			-- print("\n X: i+1 - targetPosX: ".. targetX.."\n objectPosX: ".. objectX.."\norientationValueX: ".. objectOrientationX.. "\nscaleValueX: ".. objectScaleX.."\nvertexPos: ".. objectVertex:getVertexPosition(i+1).x .."\nvertexXO: "..objectVertex:getVertexPosition(i+1).x*objectOrientationX.. "\n vertexX scaled: "..objectVertex:getVertexPosition(i+1).x*objectScaleX  .."\n  objectVPosO: "..  objectX+objectVertex:getVertexPosition(i+1).x*objectOrientationX*objectScaleX.."\nAFTER_________" )
+			-- print("\n Y: i+1 - targetPosY: ".. targetY.."\n objectPosY: ".. objectY.."\norientationValueY: ".. objectOrientationY.. "\nscaleValueY: ".. objectScaleY.."\nvertexPos: ".. objectVertex:getVertexPosition(i+1  ).y .."\nvertexYO: ".. objectVertex:getVertexPosition(i+1).y*objectOrientationY.. "\n vertexY scaled: "..objectVertex:getVertexPosition(i+1).y*objectScaleY  .."\n  objectVPosO: ".. objectY+objectVertex:getVertexPosition(i+1).y*objectScaleY.."\nAFTER_________" )
+			pTotal = get_line_intersection(p0,p1,p2,p3,p4,p5,p6,p7,0,0)
+			if pTotal == 1 then
+				return COLLISION
+			end
+		end
+	end
+end
+
+--Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
+--intersect the intersection point may be stored in the i_x and i_y.
+--algorithm from http:--stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+local s1_x, s1_y, s2_x, s2_y
+local s, t
+function get_line_intersection(p0_x,  p0_y,  p1_x,  p1_y, p2_x,  p2_y,  p3_x,  p3_y,  i_x,  i_y)
+    
+    s1_x = p1_x - p0_x;     s1_y = p1_y - p0_y;
+    s2_x = p3_x - p2_x;     s2_y = p3_y - p2_y;
+
+    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+    t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 and s <= 1 and t >= 0 and t <= 1) then
+    	--Collision detected
+        if (i_x ~= nil) then
+            i_x = p0_x + (t * s1_x)
+        end
+        if (i_y ~= nil) then
+            i_y = p0_y + (t * s1_y)
+        end
+       --safety measure, sometimes t and s equals in scientific notation which should be avoided
+       if t >= 0 and t <= 1 and s >= 0 and s <= 1 then
+       		--player.intersectCircle:setPosition(i_x,i_y,0)
+       		return 1 
+       	end
+    end
+    return 0 -- No collision
 end
 
 function round(num, idp)

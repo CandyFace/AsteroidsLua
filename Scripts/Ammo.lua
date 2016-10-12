@@ -1,7 +1,7 @@
 class "Ammo"
 
 function Ammo:Ammo(scene)
-	self.shot = SceneMesh.SceneMeshWithType(Mesh.POINT_MESH)
+	self.shot = SceneMesh.SceneMeshWithType(Mesh.LINE_MESH)
 	self.pShot = SceneMesh.SceneMeshWithType(Mesh.POINT_MESH)
 	self.scene = scene
 	self.alive = false

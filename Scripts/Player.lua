@@ -7,6 +7,7 @@ local hyperSpaceTime = 0
 
 function Player:Player(scene)
 	self.playerMain = SceneMesh.SceneMeshWithType(Mesh.LINE_LOOP_MESH)
+	self.intersectCircle = SceneMesh.SceneMeshWithType(Mesh.QUAD_MESH)
 	self.playerMain.lineSmooth = true
 	self.turnSpeed = 4
 	self.movementSpeed = 7
@@ -20,6 +21,7 @@ function Player:Player(scene)
 	self.playerMain:getMesh():addVertex(-25, 0, 0.0)
 	self.playerMain:getMesh():addVertex(15, -15, 0.0)
 	self.playerMain:getMesh():addVertex(0, 25, 0.0)
+	self.intersectCircle:getMesh():createOctosphere ( 5,  3)
 	self.shotfired = false
 	self.scene:addChild(self.playerMain)
 	self.playerMain:setBlendingMode(2)
@@ -47,6 +49,7 @@ function Player:Player(scene)
 	self.thrustMesh = SceneMesh.SceneMeshWithType(Mesh.LINE_LOOP_MESH)
 	self.thrustMesh.backfaceCulled = false
 	self.thrustMesh:Roll(135)
+	--scene:addChild(self.intersectCircle)
 
 	for i = 1, 4 do
 		self.thrustMesh:getMesh():addVertex(-7.5, 7.5, 0.0)

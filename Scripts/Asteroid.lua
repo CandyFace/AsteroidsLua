@@ -33,23 +33,23 @@ function Asteroid:Asteroid(scene) -- This works like constructor
 	if asteroid.size == 7 then
 		asteroid.speed = 2
 		asteroid.rotVal = 30
-		asteroid:Scale (5, 5, 3)
+		asteroid:Scale (5, 5, 1)
 		asteroid.point = 20
-		asteroid.colSize = 100
+		asteroid.colSize = 120
 		asteroid.explosion = Sound("Sfx/explosion.wav")
 	elseif asteroid.size == 5 then
 		asteroid.speed = 5
 		asteroid.rotVal = 50
-		asteroid:Scale (3,3,3)
+		asteroid:Scale (3,3,1)
 		asteroid.point = 50
-		asteroid.colSize = 50
+		asteroid.colSize = 70
 		asteroid.explosion = Sound("Sfx/explosion2.wav")
 	else
 		asteroid.rotVal = 100
 		asteroid.speed = 7
 		asteroid:Scale (1,1,1)
 		asteroid.point = 100
-		asteroid.colSize = 20
+		asteroid.colSize = 40
 		asteroid.explosion = Sound("Sfx/explosion3.wav")
 	end
 	asteroid.rndRotVal = math.random(-asteroid.rotVal,asteroid.rotVal)
@@ -115,7 +115,6 @@ function Asteroid:Shapes()
 end
 
 function Asteroid:Split(object)
-
 	if totalNumOfAsteroids > 0 then
 		totalNumOfAsteroids = totalNumOfAsteroids - 1
 	end
