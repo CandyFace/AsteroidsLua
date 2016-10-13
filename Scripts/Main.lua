@@ -220,7 +220,6 @@ function Update(dt)
 				local circlePAIntersect = circleIntersection(player.playerMain:getPosition2D(), object.asteroid:getPosition2D(), object.asteroid.colSize) 
 				if circlePAIntersect then
 					local check_col = check_collision(object.asteroid, player.playerMain)
-
 					if check_col == 1 then
 						player:Explode(dt)
 						player:takeDamage(dt)
@@ -270,7 +269,7 @@ function Update(dt)
 							bulletIndex = 1
 							bullet[i].timer = 0
 							killTimer = 0
-						elseif killTimer >= 0.018 then
+						elseif killTimer >= 0.030 then
 							player:GatherPoint(object)
 							totalDebris:Spread(object, object.asteroid)
 							totalAsteroids:Split(object)
@@ -281,6 +280,7 @@ function Update(dt)
 							bulletIndex = 1
 							bullet[i].timer = 0
 							killTimer = 0
+							print("\nKilled by time")
 						end
 										print("killTimer: "..killTimer)
 					end
@@ -469,7 +469,7 @@ function check_collision(object, target)
 	local objectOrientationM = object:getConcatenatedRollMatrix()
 	local targetOrientationM = target:getConcatenatedRollMatrix()
 
-	for i = 0, asteroid:getMesh():getVertexCount() do
+	for i = 0, object:getMesh():getVertexCount() do
 		local objectVPos0 = objectOrientationM:multVector(objectVertex:getVertexPosition(i))
 		local objectVPos1 = objectOrientationM:multVector(objectVertex:getVertexPosition(i+1))
 		for j = 0, target:getMesh():getVertexCount() do

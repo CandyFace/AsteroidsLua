@@ -8,3 +8,5 @@ Asteroid.polyapp
 Asteroid.polyapp
 
 *.polyapp
+
+.DS_Store
